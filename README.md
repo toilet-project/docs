@@ -18,7 +18,7 @@
 
 ## 🏛️ 시스템 아키텍처 (Architecture Overview)
 
-> *아키텍처 다이어그램 이미지가 있다면 아래에 내보내기(PNG) 후 삽입할 수 있습니다.*
+> !아키텍쳐.drawio.svg
 
 ```text
 [ React (카카오맵 SDK) ] 
