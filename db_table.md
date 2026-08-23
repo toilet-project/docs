@@ -3,6 +3,7 @@
 | 컬럼명 | 데이터 타입 | Null 허용 | 기본값 | 설명 |
 | :--- | :--- | :---: | :---: | :--- |
 | **`toilet_id`** | `BIGINT` | **PK** | `AUTO_INCREMENT` | 식별자 (기본키) |
+| **`mng_no`** | `VARCHAR(50)` | YES | `NULL` | 공공데이터 관리번호. 배치 적재 시 기존 데이터 식별 및 upsert 기준으로 사용 |
 | **`name`** | `VARCHAR(100)` | YES | `NULL` | 화장실명 |
 | **`toilet_type`** | `VARCHAR(20)` | YES | `NULL` | 구분명 (개방/공중/간이화장실 등) |
 | **`road_address`** | `VARCHAR(255)` | YES | `NULL` | 소재지도로명주소 |
@@ -33,3 +34,10 @@
 | **`data_source`** | `VARCHAR(20)` | NO | `'PUBLIC_DATA'` | 데이터 출처 |
 | **`created_at`** | `DATETIME` | NO | `CURRENT_TIMESTAMP` | 내 DB 등록일시 |
 | **`updated_at`** | `DATETIME` | NO | `CURRENT_TIMESTAMP` | 내 DB 수정일시 (`ON UPDATE`) |
+
+### 인덱스
+
+| 인덱스명 | 컬럼 | 유형 | 용도 |
+| :--- | :--- | :--- | :--- |
+| `PRIMARY` | `toilet_id` | Primary Key | 내부 식별자 조회 |
+| `idx_toilet_mng_no` | `mng_no` | Non-unique BTREE | 공공데이터 관리번호 기반 조회 및 배치 적재 시 기존 데이터 탐색 |
