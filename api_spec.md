@@ -1,5 +1,8 @@
 # 📄 REST API Specification
 
+> 운영 Base URL: `https://api.geupddong.com`  
+> 지도 영역 조회는 2026-08부터 줌 레벨에 따라 개별 마커 또는 서버 클러스터를 반환하는 v2 응답을 사용합니다.
+
 ## 1. 지도 영역 내 화장실 목록 조회
 
 사용자가 지도를 이동하거나 확대/축소했을 때, 현재 화면 사각형 영역(Bounding Box)에 존재하는 화장실 목록을 가볍게 조회합니다.
@@ -22,7 +25,18 @@
 
 ---
 
-### 📤 Response Body (JSON Array)
+### 📤 Response Body (v2 JSON Object)
+
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `meta.map_level` | Integer | 요청에 사용한 카카오맵 레벨 |
+| `meta.display_type` | String | `MARKER` 또는 `CLUSTER` |
+| `meta.total_count` | Long | 화면 범위의 전체 화장실 수 |
+| `meta.result_count` | Integer | 반환된 마커 또는 클러스터 수 |
+| `toilets` | Array | `MARKER`일 때만 반환되는 개별 마커 목록 |
+| `clusters` | Array | `CLUSTER`일 때만 반환되는 묶음 목록 (`latitude`, `longitude`, `count`) |
+
+개별 마커의 필드는 아래와 같습니다.
 
 | Field Name | Type | Nullable | Description | Example |
 | :--- | :--- | :---: | :--- | :--- |
@@ -33,23 +47,16 @@
 
 <br/>
 
-* **Response Example (`200 OK`)**
+* **Response Example (`200 OK`, MARKER)**
 
 ```json
-[
-  {
-    "id": 101,
-    "name": "강남역 공중화장실",
-    "latitude": 37.4979,
-    "longitude": 127.0276
-  },
-  {
-    "id": 102,
-    "name": "역삼공원 화장실",
-    "latitude": 37.5002,
-    "longitude": 127.0365
-  }
-]
+{
+  "meta": { "map_level": 3, "display_type": "MARKER", "total_count": 2, "result_count": 2 },
+  "toilets": [
+    { "id": 101, "name": "강남역 공중화장실", "latitude": 37.4979, "longitude": 127.0276 },
+    { "id": 102, "name": "역삼공원 화장실", "latitude": 37.5002, "longitude": 127.0365 }
+  ]
+}
 ```
 
 ## 2. 화장실 상세 정보 조회
@@ -134,3 +141,4 @@
   "dataBaseDate": "2024-01-01",
   "dataSource": "공공데이터포털"
 }
+```
