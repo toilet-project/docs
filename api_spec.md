@@ -1,6 +1,6 @@
 # 📄 REST API Specification
 
-> 운영 Base URL: `https://api.geupddong.com`  
+> 운영 Base URL: `https://api.geupddong.com`
 > 지도 영역 조회는 2026-08부터 줌 레벨에 따라 개별 마커 또는 서버 클러스터를 반환하는 v2 응답을 사용합니다.
 
 ## 1. 지도 영역 내 화장실 목록 조회
