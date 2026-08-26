@@ -2,7 +2,7 @@
 
 > 2026-08 기준 운영 구조입니다. 외부에 공개되는 웹과 API는 HTTPS만 사용하며, 서버 간 컨테이너 통신과 DB는 Mini PC 내부 네트워크에 둡니다.
 
-![급똥 아키텍처 v2](architecture-v2.svg)
+![급똥 아키텍처 v2](assets/architecture-v2.svg)
 
 ```mermaid
 flowchart TB
