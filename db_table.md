@@ -59,3 +59,34 @@
 | --- | --- | --- |
 | v1.1 | 2026-08-26 | 증분 지오코딩과 관리자 확정 좌표 보호를 위한 좌표 메타데이터 3개 컬럼 및 정책 추가 |
 | v1.0 | 2026-08-22 | 공중화장실 기본 테이블·인덱스 명세 작성 |
+
+### v1.1 운영 반영 DDL
+
+기존 v1.0 테이블에 적용한 변경 DDL입니다. 전체 `CREATE TABLE` 문을 다시 실행하지 않고 아래 순서로 적용합니다.
+
+```sql
+-- V20260826__add_coordinate_metadata.sql
+ALTER TABLE toilet
+    ADD COLUMN coordinate_source VARCHAR(30) NOT NULL DEFAULT 'LEGACY' AFTER longitude,
+    ADD COLUMN geocoded_address_hash CHAR(64) NULL AFTER coordinate_source,
+    ADD COLUMN geocoded_at DATETIME NULL AFTER geocoded_address_hash;
+
+-- V20260826_02__initialize_legacy_geocode_metadata.sql
+-- 기존 위도·경도 값은 변경하지 않는다.
+UPDATE toilet
+   SET coordinate_source = 'GEOCODED_LEGACY',
+       geocoded_address_hash = SHA2(
+               CONCAT(
+                       LOWER(TRIM(COALESCE(road_address, ''))),
+                       '|',
+                       LOWER(TRIM(COALESCE(jibun_address, '')))
+               ),
+               256
+       ),
+       geocoded_at = NULL
+ WHERE latitude IS NOT NULL
+   AND longitude IS NOT NULL
+   AND coordinate_source = 'LEGACY';
+```
+
+> 이 DDL은 2026-08-26 운영 DB에 적용 완료되었습니다. 향후 신규 환경을 구축할 때는 v1.0 기본 DDL 후 v1.1 DDL을 순서대로 적용합니다.
