@@ -1,8 +1,8 @@
-# 사용자 제보·좌표 승인 모델 v1.2
+# 사용자 제보·좌표·개방시간 승인 모델 v1.3
 
 ## 목적
 
-로그인 사용자가 위치 오류를 제보하고 관리자가 승인한 좌표만 지도에 반영한다. 공공데이터·자동 지오코딩 결과와 관리자 확정 좌표는 서로 덮어쓰지 않는다.
+로그인 사용자가 위치 오류 또는 개방 시간 오류를 제보하고 관리자가 승인한 값만 지도에 반영한다. 공공데이터·자동 지오코딩 결과와 관리자 확정 좌표는 서로 덮어쓰지 않는다.
 
 ## 선택한 구조
 
@@ -35,8 +35,10 @@ PENDING ──관리자 승인──> APPROVED
 | `report_id` | `BIGINT PK` | 제보 식별자 |
 | `toilet_id` | `BIGINT FK` | 대상 화장실 |
 | `reporter_user_id` | `BIGINT FK` | 제보 작성자 |
-| `report_type` | `VARCHAR(30)` | 초기값 `COORDINATE_CORRECTION` |
-| `proposed_latitude`, `proposed_longitude` | `DECIMAL(10,7)` | 제안 좌표 |
+| `report_type` | `VARCHAR(30)` | `COORDINATE_CORRECTION`, `OPEN_TIME_CORRECTION` |
+| `proposed_latitude`, `proposed_longitude` | `DECIMAL(10,7) NULL` | 위치 제보의 제안 좌표 |
+| `proposed_road_address` | `VARCHAR(255) NULL` | 좌표에서 역지오코딩해 사용자에게 확인받은 도로명 주소 |
+| `proposed_open_time` | `VARCHAR(50) NULL` | 개방 시간 제보값 |
 | `reason` | `VARCHAR(500)` | 제보 사유 |
 | `status` | `VARCHAR(20)` | `PENDING`, `APPROVED`, `REJECTED`, `CANCELLED` |
 | `active_request_key` | `CHAR(64) NULL UNIQUE` | 진행 중 중복 제보 방지 키 |
@@ -53,12 +55,15 @@ PENDING ──관리자 승인──> APPROVED
 | `toilet_id`, `report_id` | `BIGINT FK` | 대상 화장실·승인 근거 제보 (`report_id` UNIQUE) |
 | `previous_latitude`, `previous_longitude` | `DECIMAL(10,7)` | 적용 전 좌표 스냅샷 |
 | `applied_latitude`, `applied_longitude` | `DECIMAL(10,7)` | 관리자 확정 좌표 |
+| `previous_road_address`, `applied_road_address` | `VARCHAR(255)` | 적용 전·후 도로명 주소 |
 | `applied_by_user_id`, `applied_at` | `BIGINT FK`, `DATETIME` | 적용 관리자·시각 |
 | `source` | `VARCHAR(30)` | `USER_REPORT_APPROVED` |
 
 ## 승인 처리 규칙
 
-하나의 트랜잭션에서 PENDING 제보와 좌표 범위를 검증한 뒤, 기존 좌표를 이력에 보존한다. 이어 `toilet.latitude`, `longitude`를 갱신하고 `coordinate_source = 'ADMIN_CONFIRMED'`로 설정한다. 제보 상태를 `APPROVED`로 바꾸고 `coordinate_revision`과 `audit_log(REPORT_APPROVED)`를 저장한다.
+위치 제보는 지도 중앙 고정 핀의 좌표를 바탕으로 도로명 주소를 역지오코딩해 사용자에게 보여주고, 주소 확인 후에만 제출한다. 승인 시 하나의 트랜잭션에서 PENDING 제보와 좌표 범위를 검증한 뒤 기존 좌표·도로명 주소를 이력에 보존한다. 이어 `toilet.latitude`, `longitude`, `road_address`를 함께 갱신하고 `coordinate_source = 'ADMIN_CONFIRMED'`로 설정한다. 제보 상태를 `APPROVED`로 바꾸고 `coordinate_revision`과 `audit_log(REPORT_APPROVED)`를 저장한다.
+
+개방 시간 제보는 `proposed_open_time`만 저장한다. 승인 시 `toilet.open_time`만 변경하며 좌표 이력은 만들지 않는다.
 
 반려·취소는 `toilet`과 `coordinate_revision`을 바꾸지 않고 상태·메모와 감사 로그만 남긴다.
 
@@ -76,7 +81,8 @@ CREATE TABLE toilet_report (
   report_id BIGINT NOT NULL AUTO_INCREMENT,
   toilet_id BIGINT NOT NULL, reporter_user_id BIGINT NOT NULL,
   report_type VARCHAR(30) NOT NULL,
-  proposed_latitude DECIMAL(10,7) NOT NULL, proposed_longitude DECIMAL(10,7) NOT NULL,
+  proposed_latitude DECIMAL(10,7) NULL, proposed_longitude DECIMAL(10,7) NULL,
+  proposed_road_address VARCHAR(255) NULL, proposed_open_time VARCHAR(50) NULL,
   reason VARCHAR(500) NOT NULL, status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
   active_request_key CHAR(64) NULL,
   reviewed_by_user_id BIGINT NULL, reviewed_at DATETIME NULL, review_note VARCHAR(500) NULL,
@@ -93,6 +99,7 @@ CREATE TABLE coordinate_revision (
   toilet_id BIGINT NOT NULL, report_id BIGINT NOT NULL,
   previous_latitude DECIMAL(10,7) NULL, previous_longitude DECIMAL(10,7) NULL,
   applied_latitude DECIMAL(10,7) NOT NULL, applied_longitude DECIMAL(10,7) NOT NULL,
+  previous_road_address VARCHAR(255) NULL, applied_road_address VARCHAR(255) NOT NULL,
   applied_by_user_id BIGINT NOT NULL, applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   source VARCHAR(30) NOT NULL DEFAULT 'USER_REPORT_APPROVED',
   PRIMARY KEY (coordinate_revision_id), UNIQUE KEY uk_revision_report (report_id),
