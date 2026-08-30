@@ -1,5 +1,11 @@
 # 문서 변경 이력
 
+## 2026-08-30 — 사용자 제보·좌표 승인 모델 v1.2
+
+- `toilet_report`와 `coordinate_revision`의 책임과 상태 전이를 정의했다.
+- 승인된 제보만 `toilet` 최종 좌표와 `ADMIN_CONFIRMED` 출처를 변경하도록 정했다.
+- 중복 제보 방지 키, 적용 이력·감사 로그 연계, Flyway DDL 초안을 추가했다.
+
 ## 2026-08-30 — 인증·권한 정책 및 데이터 모델 설계 v1.1
 
 - 별도 인증 서버 없이 `toilet-api` 안에서 Spring Security OAuth2 Client로 Google·Kakao 로그인을 처리하는 방향을 확정했다.
