@@ -16,6 +16,7 @@
 | DB | [Toilet 테이블 명세](database/toilet-table.md) | 화장실 데이터베이스 구조와 마이그레이션 DDL |
 | 변경 이력 | [문서 변경 이력](changelog/CHANGELOG.md) | 스키마·아키텍처 등 주요 문서 변경 기록 |
 | 기획 | [요구사항 정의서](planning/requirements.md) | 서비스 목표와 향후 확장 범위 |
+| 기획 | [인증·권한 정책 및 데이터 모델 설계 v1.1](planning/authentication-authorization-design.md) | Google·Kakao 로그인, USER/ADMIN 권한, JWT·Redis 세션·감사 로그 설계 |
 
 ## 최신 아키텍처
 
