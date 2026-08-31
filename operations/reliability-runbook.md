@@ -55,6 +55,7 @@ Mini PC에는 사용자 `cron` 명령이 없어 systemd timer를 사용한다. `
 - HTTP 응답 시간은 100ms·250ms·500ms·1s·2s 구간으로 관측한다.
 - 운영 애플리케이션의 SQL 출력은 비활성화하여 개인정보와 쿼리 인자 노출을 줄인다.
 - Docker `json-file` 로그는 서비스별 50MB 이내로 순환한다.
+- MySQL compose에는 비밀번호 값을 직접 쓰지 않고 소유자 전용 `.env`를 연결한다.
 
 ## 비밀정보 점검
 
