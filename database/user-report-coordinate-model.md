@@ -110,7 +110,7 @@ CREATE TABLE coordinate_revision (
 );
 ```
 
-> 위 DDL은 `toilet-api`의 `V2__create_toilet_report_and_coordinate_revision.sql`로 운영 반영되었다. 이 문서만으로 운영 DB를 수동 변경하지 않는다. 전체 테이블 관계와 적용 순서는 [운영 데이터 모델 v1.5](database-schema-v1.5.md)를 참조한다.
+> 위 DDL은 `toilet-api`의 `V2__create_toilet_report_and_coordinate_revision.sql`로 운영 반영되었다. 이 문서만으로 운영 DB를 수동 변경하지 않는다. 전체 테이블 관계와 적용 순서는 [운영 데이터 모델 v1.6](database-schema-v1.6.md)를 참조한다.
 
 ## 변경 이력
 
