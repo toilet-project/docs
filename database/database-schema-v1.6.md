@@ -1,4 +1,4 @@
-# 운영 데이터 모델 v1.5
+# 운영 데이터 모델 v1.6
 
 > 기준일: 2026-08-31 · 상태: 운영 반영 기준 · DB: MySQL `toilet_db`
 
@@ -17,6 +17,7 @@ erDiagram
     TOILET ||--o{ COORDINATE_REVISION : records
     TOILET_REPORT ||--o| COORDINATE_REVISION : approves
     TOILET_REPORT ||--o{ USER_NOTIFICATION : notifies
+    APP_USER ||--o{ COORDINATE_QUALITY_REVIEW : reviews
 ```
 
 | 테이블 | 역할 | 실제 DDL 출처 |
@@ -29,6 +30,7 @@ erDiagram
 | `toilet_report` | 위치·개방시간 사용자 제보 | API Flyway `V2__create_toilet_report_and_coordinate_revision.sql` |
 | `coordinate_revision` | 승인된 좌표·주소 변경 이력 | API Flyway V2 |
 | `user_notification` | 제보 승인·반려 결과의 사이트 내 알림 | API Flyway `V4__create_user_notification.sql` |
+| `coordinate_quality_review` | 동일 좌표 그룹의 관리자 확인 상태 | API Flyway `V5__create_coordinate_quality_review.sql` |
 | `batch_sync_history` | 공공데이터 배치 실행 결과 | Batch `src/main/resources/schema.sql` |
 
 ## 2. 테이블 책임과 핵심 컬럼
@@ -43,6 +45,7 @@ erDiagram
 | `coordinate_revision` | `report_id` 유니크 | 승인 전후 좌표·도로명 주소를 삭제하지 않고 기록 |
 | `audit_log` | `action`, `target_type`, `target_id` | 개인정보·토큰 원문은 detail에 기록하지 않음 |
 | `user_notification` | `notification_id`, `user_id`, `report_id`, `read_at` | 사용자 본인의 알림만 조회·읽음 처리하며 `(user_id, report_id, type)`으로 중복 생성 방지 |
+| `coordinate_quality_review` | `group_key`, `status`, `reviewed_by_user_id` | 좌표 자체를 자동 변경하지 않고 그룹 검토 상태와 메모만 보존 |
 | `batch_sync_history` | `status`, `started_at` | 수신·신규·수정·실패 건수와 실패 사유를 운영 조회용으로 기록 |
 
 상세 컬럼은 [Toilet 테이블 명세](toilet-table.md), [제보·좌표 승인 모델](user-report-coordinate-model.md), [인증 모델](../planning/authentication-authorization-design.md)을 각각의 도메인 기준으로 참조한다.
@@ -57,6 +60,7 @@ erDiagram
 | 4 | API Flyway V2 | 제보·좌표 수정 이력 | V1 이후 자동 적용 |
 | 5 | Batch SQL init | `batch_sync_history` | 배치 실행 이력 전용 테이블 |
 | 6 | API Flyway V4 | 사이트 내 제보 결과 알림 | 승인·반려 트랜잭션에서 생성 |
+| 7 | API Flyway V5 | 중복 좌표 품질 검토 | 직접 보정 이력을 위해 `coordinate_revision.report_id`를 nullable로 확장 |
 
 신규 환경은 위 순서를 지킨다. 운영 DB에 문서의 SQL을 직접 재실행하지 않으며, API 변경은 Flyway migration으로 추가한다.
 
@@ -71,5 +75,6 @@ erDiagram
 
 | 버전 | 일자 | 변경 |
 | --- | --- | --- |
+| v1.6 | 2026-08-31 | 동일 좌표 그룹 검토 상태와 관리자 직접 보정 이력 모델 추가 |
 | v1.5 | 2026-08-31 | `user_notification`과 제보 처리 결과 알림의 소유권·중복 방지·읽음 정책 추가 |
 | v1.4 | 2026-08-31 | 인증·제보·좌표 이력·배치 이력을 포함한 전체 운영 스키마와 실제 DDL 출처 정비 |
