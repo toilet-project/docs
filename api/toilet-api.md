@@ -178,3 +178,18 @@
   "dataSource": "공공데이터포털"
 }
 ```
+
+## 관리자 역할·감사 로그 API
+
+아래 API는 모두 로그인과 `ADMIN` 역할이 필요하며, 관리자 웹은 서버 페이지네이션 결과만 표시한다.
+
+| Method | Endpoint | 설명 |
+| --- | --- | --- |
+| `GET` | `/api/admin/v1/security/users` | 이름·이메일 키워드, 계정 상태, 역할별 사용자 검색 |
+| `POST` | `/api/admin/v1/security/users/{userId}/admin-role` | 관리자 역할 부여 |
+| `DELETE` | `/api/admin/v1/security/users/{userId}/admin-role` | 관리자 역할 회수 |
+| `GET` | `/api/admin/v1/security/audit-logs` | 기간·행위·수행자·대상별 감사 로그 검색 |
+
+사용자 검색은 `keyword`, `status`, `role`, `page`, `size`를 받는다. 감사 검색은 `from`, `to`, `action`, `actorUserId`, `targetType`, `targetId`, `sort`, `page`, `size`를 받는다. `size`는 1~50이며 날짜 범위가 역전되면 `400 Bad Request`를 반환한다.
+
+자기 자신의 관리자 권한과 마지막 남은 관리자 권한은 회수할 수 없다. 감사 응답에는 수행자의 표시명과 내부 ID만 제공하며 이메일·토큰·시크릿은 포함하지 않는다.
