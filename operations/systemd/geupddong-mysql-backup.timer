@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Geupddong MySQL backup every day at 03:15 KST
+
+[Timer]
+OnCalendar=*-*-* 03:15:00 Asia/Seoul
+Persistent=true
+Unit=geupddong-mysql-backup.service
+
+[Install]
+WantedBy=timers.target

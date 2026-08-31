@@ -1,0 +1,15 @@
+[Unit]
+Description=Geupddong encrypted MySQL backup
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=luha
+Group=luha
+ExecStart=/home/luha/.local/bin/mysql-backup.sh
+StandardOutput=append:/home/luha/backups/geupddong/backup.log
+StandardError=append:/home/luha/backups/geupddong/backup.log
+
+[Install]
+WantedBy=multi-user.target
