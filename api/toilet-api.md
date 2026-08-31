@@ -59,6 +59,42 @@
 }
 ```
 
+## 3. 인증 API
+
+| API | 인증 | 설명 |
+| --- | --- | --- |
+| `GET /api/v1/auth/login/{google|kakao}` | 공개 | OAuth 로그인 시작 |
+| `GET /api/v1/auth/me` | USER 이상 | 현재 로그인 사용자·역할 조회 |
+| `POST /api/v1/auth/refresh` | refresh cookie | access/refresh 토큰 회전 |
+| `POST /api/v1/auth/logout` | 공개 | refresh 세션 폐기 및 인증 쿠키 만료 |
+
+성공 로그인 후 API는 URL에 토큰을 넣지 않고 HttpOnly·Secure 쿠키(`geupddong_access`, `geupddong_refresh`)를 설정한 뒤 웹의 인증 완료 화면으로 이동한다. access JWT는 15분, refresh 세션은 Redis에서 14일 TTL로 관리한다.
+
+## 4. 사용자 제보 API
+
+| API | 인증 | 설명 |
+| --- | --- | --- |
+| `POST /api/v1/reports` | USER 이상 | 위치 또는 개방시간 제보 접수 |
+| `GET /api/v1/reports/me` | USER 이상 | 내 제보 목록 조회 |
+
+제보 유형은 `COORDINATE_CORRECTION`, `OPEN_TIME_CORRECTION`이다. 위치 제보에는 제안 좌표와 사용자 확인 도로명 주소를 함께 저장한다. 응답의 상태는 `PENDING`, `APPROVED`, `REJECTED`, `CANCELLED` 중 하나다.
+
+## 5. 관리자 API
+
+관리자 API는 `ADMIN` 역할이 필요하며, 운영 웹 진입 시 Cloudflare Access도 함께 적용된다.
+
+| API | 설명 |
+| --- | --- |
+| `GET /api/admin/v1/reports/summary` | 제보 상태 요약 |
+| `GET /api/admin/v1/reports/search` | 상태·기간·검색어·정렬·페이지 기준 제보 목록 |
+| `GET /api/admin/v1/reports/{reportId}` | 제보와 현재 화장실 정보 상세 |
+| `POST /api/admin/v1/reports/{reportId}/approve` | 좌표/개방시간 제보 승인 |
+| `POST /api/admin/v1/reports/{reportId}/reject` | 제보 반려 |
+| `GET /api/admin/v1/batch-syncs/search` | 배치 이력 페이지 조회 |
+| `GET /api/admin/v1/batch-syncs/daily` | 일별 배치 집계 |
+
+관리자 상세 조회와 목록은 서버 페이지네이션을 사용한다. 제보 승인·반려는 감사 로그를 남기며, 위치 승인 시 `coordinate_revision`에 전후 좌표·주소를 기록한다.
+
 ## 2. 화장실 상세 정보 조회
 
 지도 위의 특정 마커를 클릭하거나 마우스를 올렸을 때, 해당 화장실의 부가 상세 정보를 조회합니다.

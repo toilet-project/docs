@@ -1,5 +1,11 @@
 # 문서 변경 이력
 
+## 2026-08-31 — 운영 아키텍처·데이터 모델·DDL 문서 v3.0
+
+- Cloudflare Pages/Access, Mini PC Docker, Nginx, API·관리자·배치, MySQL·Redis의 현재 운영 경계를 아키텍처 v3.0으로 정리했다.
+- `toilet`, 인증, 제보·좌표 이력, 배치 실행 이력을 하나의 운영 데이터 모델 v1.4로 연결하고 실제 DDL 출처·적용 순서를 명시했다.
+- OAuth 쿠키 기반 JWT, Redis refresh session, 공개/사용자/관리자 API와 정기 운영 점검 기준을 현재 구현 상태로 갱신했다.
+
 ## 2026-08-30 — 사용자 제보·좌표 승인 모델 v1.2
 
 - `toilet_report`와 `coordinate_revision`의 책임과 상태 전이를 정의했다.
