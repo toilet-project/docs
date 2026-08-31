@@ -15,13 +15,14 @@
 | 운영 | [운영 안정화 Runbook v1.0](operations/reliability-runbook.md) | 암호화 백업·복구, 배치 장애, 지표·로그 대응 절차 |
 | 운영 | [DB 백업·복구 리허설](operations/backup-restore-rehearsal-2026-08-31.md) | 실제 운영 백업과 임시 복구 검증 결과 |
 | API | [Toilet API 명세](api/toilet-api.md) | 공개 지도·인증·제보·관리자 API 계약 |
-| DB | [운영 데이터 모델 v1.6](database/database-schema-v1.6.md) | 전체 테이블 관계, 품질 검토를 포함한 실제 DDL 출처와 운영 적용 순서 |
+| DB | [운영 데이터 모델 v1.7](database/database-schema-v1.7.md) | 정책 버전·사용자 동의·탈퇴까지 포함한 최신 운영 모델 |
 | DB | [Toilet 테이블 명세](database/toilet-table.md) | 공공데이터·좌표 정책을 포함한 화장실 원천 데이터 |
 | DB | [사용자 제보·좌표·개방시간 승인 모델 v1.4](database/user-report-coordinate-model.md) | 제보 상태 전이, 확정 좌표·주소 이력 및 적용 DDL |
 | DB | [중복 좌표 데이터 품질 관리](database/duplicate-coordinate-quality.md) | 동일 좌표 그룹 확인, 직접 보정, 이력·배치 보호 정책 |
 | 변경 이력 | [문서 변경 이력](changelog/CHANGELOG.md) | 스키마·아키텍처 등 주요 문서 변경 기록 |
 | 기획 | [요구사항 정의서](planning/requirements.md) | 서비스 목표와 향후 확장 범위 |
-| 기획 | [인증·권한 정책 및 데이터 모델 설계 v1.3](planning/authentication-authorization-design.md) | Google·Kakao 로그인, USER/ADMIN 권한, JWT·Redis 세션·감사 로그 구현 기준 |
+| 기획 | [인증·권한 정책 및 데이터 모델 설계 v1.5](planning/authentication-authorization-design.md) | Google·Kakao 로그인, 정책 동의, USER/ADMIN 권한, JWT·Redis 세션·감사 로그 구현 기준 |
+| 기획 | [개인정보·서비스 약관 및 회원 동의 정책 v1.0](planning/privacy-policy-consent-v1.md) | 만 14세 이상, 정책 버전 동의, GPS 고지, 보유·파기·탈퇴 기준 |
 
 ## 최신 아키텍처
 
