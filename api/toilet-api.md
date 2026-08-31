@@ -65,17 +65,21 @@
 | --- | --- | --- |
 | `GET /api/v1/auth/login/{google|kakao}` | 공개 | OAuth 로그인 시작 |
 | `GET /api/v1/auth/me` | USER 이상 | 현재 로그인 사용자·역할 조회 |
+| `GET /api/v1/policies` | 공개 | 현재 적용 중인 정책 버전·공개 경로 조회 |
+| `GET /api/v1/auth/consents/status` | 로그인 | 최신 필수 정책의 미동의 상태와 내 정책별 동의 버전·시각 조회 |
+| `POST /api/v1/auth/consents` | 로그인 | 필수 정책 key·version 동의 이력 저장 |
 | `POST /api/v1/auth/refresh` | refresh cookie | access/refresh 토큰 회전 |
 | `POST /api/v1/auth/logout` | 공개 | refresh 세션 폐기 및 인증 쿠키 만료 |
+| `DELETE /api/v1/auth/me` | 로그인 | 회원 탈퇴·소셜 연결/역할/전체 refresh 세션 폐기 |
 
-성공 로그인 후 API는 URL에 토큰을 넣지 않고 HttpOnly·Secure 쿠키(`geupddong_access`, `geupddong_refresh`)를 설정한 뒤 웹의 인증 완료 화면으로 이동한다. access JWT는 15분, refresh 세션은 Redis에서 14일 TTL로 관리한다.
+성공 로그인 후 API는 URL에 토큰을 넣지 않고 HttpOnly·Secure 쿠키(`geupddong_access`, `geupddong_refresh`)를 설정한 뒤 웹의 인증 완료 화면으로 이동한다. access JWT는 15분, refresh 세션은 Redis에서 14일 TTL로 관리한다. 신규 사용자는 `PENDING_CONSENT`로 생성하며 최신 필수 정책에 모두 동의하면 `ACTIVE`가 된다. 기존 사용자에게도 최신 필수 동의가 없으면 `GET /auth/me`의 `consentRequired`가 `true`로 반환된다.
 
 ## 4. 사용자 제보 API
 
 | API | 인증 | 설명 |
 | --- | --- | --- |
-| `POST /api/v1/reports` | USER 이상 | 위치 또는 개방시간 제보 접수 |
-| `GET /api/v1/reports/me` | USER 이상 | 내 제보 목록 조회 |
+| `POST /api/v1/reports` | ACTIVE + 최신 필수 동의 | 위치 또는 개방시간 제보 접수 |
+| `GET /api/v1/reports/me` | ACTIVE + 최신 필수 동의 | 내 제보 목록 조회 |
 
 제보 유형은 `COORDINATE_CORRECTION`, `OPEN_TIME_CORRECTION`이다. 위치 제보에는 제안 좌표와 사용자 확인 도로명 주소를 함께 저장한다. 응답의 상태는 `PENDING`, `APPROVED`, `REJECTED`, `CANCELLED` 중 하나다.
 

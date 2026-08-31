@@ -1,4 +1,4 @@
-# 인증·권한 정책 및 데이터 모델 설계 v1.3
+# 인증·권한 정책 및 데이터 모델 설계 v1.5
 
 > 대상: 급똥 웹·API·관리자 운영 기능  
 > 상태: Google·Kakao OAuth, JWT 쿠키, Redis refresh 세션, USER/ADMIN 인가 운영 반영 완료
@@ -8,9 +8,9 @@
 
 - 별도 인증 서버는 만들지 않는다. `toilet-api`가 Spring Security OAuth2 Client를 사용해 Google·Kakao 로그인을 처리한다.
 - 일반 사용자는 `USER`, 운영 담당자는 `ADMIN` 역할을 가진다. `ADMIN`은 Cloudflare Access 통과와 애플리케이션 역할 검증을 모두 만족해야 한다.
-- 지도·화장실 조회는 비로그인으로 유지한다. 로그인은 제보, 제보 상태 조회, 관리자 기능부터 요구한다.
+- 지도·화장실 조회는 비로그인으로 유지한다. OAuth 인증 후 기존 회원 여부를 식별하고, 신규 회원만 가입 동의와 만 14세 이상 확인을 거쳐 회원 기능을 활성화한다. 최신 동의 이력이 있는 기존 회원은 반복 동의 없이 로그인한다.
 - 짧은 수명의 access token은 JWT로 발급해 HttpOnly Secure 쿠키로 전달한다. 갱신용 refresh token은 암호학적 난수로 만들고 Redis에 해시와 TTL을 저장한다. 브라우저 저장소에는 어떤 토큰도 저장하지 않는다.
-- Google·Kakao의 계정 식별자는 이메일이 아닌 `(provider, provider_subject_hash)` 조합을 기준으로 연결한다. 제공자 고유값은 HMAC-SHA-256으로 변환해 저장하며, 이메일은 제공되지 않거나 변경될 수 있으므로 보조 정보로만 저장한다.
+- Google·Kakao의 계정 식별자는 이메일이 아닌 `(provider, provider_subject_hash)` 조합을 기준으로 연결한다. 제공자 고유값은 SHA-256으로 변환해 저장하며, 이메일은 제공되지 않거나 변경될 수 있으므로 보조 정보로만 저장한다. 이 해시는 안정적인 조회 키이며 익명화 수단으로 간주하지 않는다.
 
 ## 2. 인증 흐름
 
@@ -25,9 +25,11 @@ sequenceDiagram
     W->>A: /oauth2/authorization/{provider}
     A->>O: OAuth 동의·인증 요청
     O->>A: /login/oauth2/code/{provider}
-    A->>D: 사용자·소셜 계정 조회 또는 생성
+    A->>D: 사용자·소셜 계정 조회 또는 생성(PENDING_CONSENT)
     A->>R: refresh token 해시·TTL 저장
-    A-->>W: Secure HttpOnly access·refresh cookie + callback redirect
+    A-->>W: Secure HttpOnly access·refresh cookie + 동의 화면 redirect
+    W->>A: 최신 필수 정책 version 동의
+    A->>D: 동의 이력 저장·ACTIVE 전환
     W->>A: /api/v1/auth/refresh (credentials 포함)
     A-->>W: 짧은 수명의 access token
 ```
@@ -110,7 +112,7 @@ erDiagram
 
 | 테이블 | 책임 | 핵심 제약 |
 | --- | --- | --- |
-| `app_user` | 서비스 사용자 상태와 표시 정보 | `status`: `ACTIVE`, `SUSPENDED`, `WITHDRAWN` |
+| `app_user` | 서비스 사용자 상태와 표시 정보 | `status`: `PENDING_CONSENT`, `ACTIVE`, `SUSPENDED`, `WITHDRAWN` |
 | `user_social_account` | OAuth 제공자 계정 연결 | `UNIQUE(provider, provider_subject_hash)`, 사용자당 제공자 하나만 연결 |
 | `user_role` | 다중 역할 부여 | `PRIMARY KEY(user_id, role)`, 역할: `USER`, `ADMIN` |
 | `audit_log` | 관리자·보안 행위의 추적 | 제보 승인/반려, 좌표 확정, 역할 변경, 계정 상태 변경 기록 |
@@ -139,7 +141,7 @@ erDiagram
 | `social_account_id` | 소셜 계정 연결 식별자 | 내부 기본키 |
 | `user_id` | 사용자 식별자 | 연결된 `app_user` 참조 |
 | `provider` | 소셜 로그인 제공자 | `GOOGLE`, `KAKAO` |
-| `provider_subject_hash` | 제공자 사용자 고유값 해시 | 제공자가 부여한 식별값을 HMAC-SHA-256으로 변환한 로그인 조회용 해시 |
+| `provider_subject_hash` | 제공자 사용자 고유값 해시 | 제공자가 부여한 식별값을 SHA-256으로 변환한 로그인 조회용 해시 |
 | `provider_email` | 제공자 이메일 | 제공된 경우에만 보관하는 제공자 프로필 정보 |
 | `linked_at` | 연결 일시 | 해당 소셜 계정 최초 연결 시각 |
 | `last_login_at` | 제공자 마지막 로그인 일시 | 해당 제공자를 통한 마지막 로그인 시각 |
@@ -301,6 +303,7 @@ CREATE TABLE audit_log (
 
 | 버전 | 일자 | 변경 내용 |
 | --- | --- | --- |
+| v1.5 | 2026-09-01 | OAuth 이후 필수 정책 버전 동의, 가입 대기 상태, 탈퇴 시 전체 refresh 세션 폐기 반영 |
 | v1.4 | 2026-08-31 | 관리자 역할 부여·회수 안전장치, 감사 로그 검색·마스킹·보존 정책 반영 |
 | v1.3 | 2026-08-31 | OAuth 로그인, HttpOnly access/refresh 쿠키, Redis 운영 Compose, 제보 승인 연계를 실제 운영 상태로 갱신 |
 | v1.2 | 2026-08-30 | Flyway 데이터 모델, Redis token store, Spring Security 접근 경계의 구현 범위와 실제 Redis 키 정책 반영 |
