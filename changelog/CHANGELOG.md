@@ -1,5 +1,12 @@
 # 문서 변경 이력
 
+## 2026-09-01 — 개인정보·약관 동의 및 데이터 모델 v1.7
+
+- 개인 운영 서비스 기준의 이용약관·개인정보 처리방침·위치정보 안내 공개 경로를 정리했다.
+- OAuth 인증 이후 서비스가 직접 만 14세 이상·필수 정책 버전 동의를 받는 흐름을 확정했다.
+- `policy_document`, `user_policy_consent`, `PENDING_CONSENT` 계정 상태와 회원 탈퇴·세션 폐기 정책을 추가했다.
+- Cloudflare Email Routing의 `privacy@geupddong.com` 공개 문의처를 운영 설정에 반영했다.
+
 ## 2026-08-31 — 운영 안정화 Runbook v1.0
 
 - API·관리자·배치 Actuator/Prometheus 관측 기준과 Docker 로그 회전 정책을 정리했다.
