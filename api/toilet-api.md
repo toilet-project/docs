@@ -193,3 +193,16 @@
 사용자 검색은 `keyword`, `status`, `role`, `page`, `size`를 받는다. 감사 검색은 `from`, `to`, `action`, `actorUserId`, `targetType`, `targetId`, `sort`, `page`, `size`를 받는다. `size`는 1~50이며 날짜 범위가 역전되면 `400 Bad Request`를 반환한다.
 
 자기 자신의 관리자 권한과 마지막 남은 관리자 권한은 회수할 수 없다. 감사 응답에는 수행자의 표시명과 내부 ID만 제공하며 이메일·토큰·시크릿은 포함하지 않는다.
+
+## 사용자 알림 API
+
+사이트 내 알림은 로그인한 사용자 본인의 제보 처리 결과만 제공한다. 승인·반려 처리와 같은 트랜잭션에서 생성되며 `(user_id, report_id, type)` 유니크 제약으로 재처리에 따른 중복 알림을 막는다.
+
+| Method | Endpoint | 설명 |
+| --- | --- | --- |
+| `GET` | `/api/v1/notifications?unreadOnly={boolean}&page={n}&size={n}` | 내 알림을 최신순 페이지로 조회 |
+| `GET` | `/api/v1/notifications/unread-count` | 읽지 않은 내 알림 수 조회 |
+| `PATCH` | `/api/v1/notifications/{notificationId}/read` | 내 알림 1건 읽음 처리 |
+| `POST` | `/api/v1/notifications/read-all` | 읽지 않은 내 알림 전체 읽음 처리 |
+
+다른 사용자의 알림 ID는 조회·변경할 수 없다. 웹은 알림을 선택하면 연결된 `reportId`의 내 제보 상세를 펼친다. 현재 채널은 사이트 내 알림만 사용하며 이메일 알림은 별도 수신 동의·발송 제공자·반송 및 수신 거부 정책을 확정한 뒤 추가한다.
