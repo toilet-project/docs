@@ -287,10 +287,21 @@ CREATE TABLE audit_log (
 - [x] Google·Kakao OAuth 앱·Redirect URI·시크릿을 등록했다.
 - [x] OAuth 로그인, access JWT, token refresh/logout endpoint를 연결했다.
 
+## 9. 관리자 역할·감사 로그 운영 정책
+
+관리자 역할 변경은 `ADMIN` 권한을 가진 로그인 사용자만 수행한다. 운영 중 실수로 관리 권한이 모두 사라지는 상황을 막기 위해 자신의 `ADMIN` 역할 회수와 마지막 관리자 역할 회수를 금지한다. 초기 허용 이메일은 계정이 처음 생성될 때만 bootstrap에 사용하며, 이후 관리자가 회수한 역할을 다음 OAuth 로그인에서 자동으로 되살리지 않는다.
+
+역할 변경은 `user_role`에 반영하면서 `audit_log`에 `ROLE_GRANTED` 또는 `ROLE_REVOKED`를 기록한다. 제보 승인·반려는 각각 `REPORT_APPROVED`, `REPORT_REJECTED`를 기록한다. 감사 상세에는 사용자 ID, 대상 유형·ID, 변경 역할처럼 사후 확인에 필요한 최소 정보만 남기며 이메일, OAuth 응답, access/refresh token, 쿠키, 비밀번호와 시크릿 원문은 저장하지 않는다.
+
+운영 화면은 기간, 행위, 수행 관리자, 대상 유형·ID 조건을 서버 페이지네이션으로 조회한다. 한 페이지는 최대 50건으로 제한하고 최신순을 기본값으로 사용한다. 관리자 역할 회수는 이미 발급된 access token의 최대 유효 시간 이후 완전히 반영되므로 긴급 회수 시에는 대상 사용자의 refresh 세션 폐기와 함께 처리한다.
+
+감사 로그는 현재 운영 단계에서 삭제·수정 기능을 제공하지 않는다. 기본 보존 기간은 1년으로 두고, 실제 자동 파기 작업을 도입하기 전 법적·운영 필요 기간을 다시 확정한다. 보존 기간 변경과 파기는 별도 승인·감사 대상으로 관리한다.
+
 ## 변경 이력
 
 | 버전 | 일자 | 변경 내용 |
 | --- | --- | --- |
+| v1.4 | 2026-08-31 | 관리자 역할 부여·회수 안전장치, 감사 로그 검색·마스킹·보존 정책 반영 |
 | v1.3 | 2026-08-31 | OAuth 로그인, HttpOnly access/refresh 쿠키, Redis 운영 Compose, 제보 승인 연계를 실제 운영 상태로 갱신 |
 | v1.2 | 2026-08-30 | Flyway 데이터 모델, Redis token store, Spring Security 접근 경계의 구현 범위와 실제 Redis 키 정책 반영 |
 | v1.1 | 2026-08-30 | refresh token 저장소를 MySQL에서 Redis로 변경하고 라이브러리·Redis 운영 기준 추가 |
