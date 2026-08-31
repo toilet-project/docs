@@ -206,3 +206,16 @@
 | `POST` | `/api/v1/notifications/read-all` | 읽지 않은 내 알림 전체 읽음 처리 |
 
 다른 사용자의 알림 ID는 조회·변경할 수 없다. 웹은 알림을 선택하면 연결된 `reportId`의 내 제보 상세를 펼친다. 현재 채널은 사이트 내 알림만 사용하며 이메일 알림은 별도 수신 동의·발송 제공자·반송 및 수신 거부 정책을 확정한 뒤 추가한다.
+
+## 중복 좌표 데이터 품질 API
+
+모든 API는 `ADMIN` 역할이 필요하다. 이름만 보고 좌표를 자동 추정하지 않으며, 관리자가 직접 저장한 좌표만 `ADMIN_CONFIRMED`로 반영한다.
+
+| Method | Endpoint | 설명 |
+| --- | --- | --- |
+| `GET` | `/api/admin/v1/data-quality/duplicate-coordinates` | 검색어·확인 상태·페이지 기준 중복 좌표 그룹 조회 |
+| `GET` | `/api/admin/v1/data-quality/duplicate-coordinates/{groupKey}` | 그룹의 전체 화장실·대기 위치 제보·수정 이력 조회 |
+| `PATCH` | `/api/admin/v1/data-quality/duplicate-coordinates/{groupKey}/review` | `PENDING`, `NEEDS_CORRECTION`, `CONFIRMED_SHARED` 상태와 메모 저장 |
+| `POST` | `/api/admin/v1/data-quality/toilets/{toiletId}/coordinates` | 카카오맵에서 확인한 개별 화장실 좌표·도로명 주소 확정 |
+
+관리자 직접 보정은 `coordinate_revision.source=ADMIN_DIRECT`로 기록하고, 사용자 위치 제보 승인은 `USER_REPORT_APPROVED`로 구분한다. 모든 상태 변경과 좌표 변경은 감사 로그에도 남는다.
