@@ -1,4 +1,4 @@
-# 사용자 제보·좌표·개방시간 승인 모델 v1.3
+# 사용자 제보·좌표·개방시간 승인 모델 v1.4
 
 ## 목적
 
@@ -73,7 +73,7 @@ PENDING ──관리자 승인──> APPROVED
 - 주소·운영시간·편의시설 등 공공데이터 속성은 계속 갱신한다.
 - 관리자가 확정 좌표를 해제하는 미래 기능은 새 이력을 남기고 자동 지오코딩 좌표로 되돌린다. 기존 이력은 삭제하지 않는다.
 
-## Flyway DDL 초안
+## Flyway DDL (운영 적용)
 
 ```sql
 -- V2__create_toilet_report_and_coordinate_revision.sql
@@ -110,4 +110,11 @@ CREATE TABLE coordinate_revision (
 );
 ```
 
-> 실제 운영 반영은 다음 API 구현 WBS에서 `toilet-api` Flyway migration으로 수행한다. 이 문서만으로 운영 DB를 수동 변경하지 않는다.
+> 위 DDL은 `toilet-api`의 `V2__create_toilet_report_and_coordinate_revision.sql`로 운영 반영되었다. 이 문서만으로 운영 DB를 수동 변경하지 않는다. 전체 테이블 관계와 적용 순서는 [운영 데이터 모델 v1.4](database-schema-v1.4.md)를 참조한다.
+
+## 변경 이력
+
+| 버전 | 일자 | 변경 내용 |
+| --- | --- | --- |
+| v1.4 | 2026-08-31 | Flyway V2 실제 운영 적용 상태와 전체 운영 데이터 모델 문서 연결 |
+| v1.3 | 2026-08-30 | 제보·좌표·개방시간 승인 모델과 DDL 기준 작성 |

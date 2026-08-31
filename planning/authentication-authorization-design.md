@@ -1,15 +1,15 @@
-# 인증·권한 정책 및 데이터 모델 설계 v1.2
+# 인증·권한 정책 및 데이터 모델 설계 v1.3
 
 > 대상: 급똥 웹·API·관리자 운영 기능  
-> 상태: 데이터 모델·보안 기반 구현 완료, OAuth 로그인 구현 대기
-> 작성일: 2026-08-30
+> 상태: Google·Kakao OAuth, JWT 쿠키, Redis refresh 세션, USER/ADMIN 인가 운영 반영 완료
+> 작성일: 2026-08-31
 
 ## 1. 결정 사항
 
 - 별도 인증 서버는 만들지 않는다. `toilet-api`가 Spring Security OAuth2 Client를 사용해 Google·Kakao 로그인을 처리한다.
 - 일반 사용자는 `USER`, 운영 담당자는 `ADMIN` 역할을 가진다. `ADMIN`은 Cloudflare Access 통과와 애플리케이션 역할 검증을 모두 만족해야 한다.
 - 지도·화장실 조회는 비로그인으로 유지한다. 로그인은 제보, 제보 상태 조회, 관리자 기능부터 요구한다.
-- 짧은 수명의 access token은 JWT로 발급해 웹 메모리에만 보관한다. 갱신용 refresh token은 암호학적 난수로 만들고, Redis에 해시와 TTL을 저장한다. 브라우저 저장소에는 어떤 토큰도 저장하지 않는다.
+- 짧은 수명의 access token은 JWT로 발급해 HttpOnly Secure 쿠키로 전달한다. 갱신용 refresh token은 암호학적 난수로 만들고 Redis에 해시와 TTL을 저장한다. 브라우저 저장소에는 어떤 토큰도 저장하지 않는다.
 - Google·Kakao의 계정 식별자는 이메일이 아닌 `(provider, provider_subject_hash)` 조합을 기준으로 연결한다. 제공자 고유값은 HMAC-SHA-256으로 변환해 저장하며, 이메일은 제공되지 않거나 변경될 수 있으므로 보조 정보로만 저장한다.
 
 ## 2. 인증 흐름
@@ -27,7 +27,7 @@ sequenceDiagram
     O->>A: /login/oauth2/code/{provider}
     A->>D: 사용자·소셜 계정 조회 또는 생성
     A->>R: refresh token 해시·TTL 저장
-    A-->>W: Secure HttpOnly refresh cookie + callback redirect
+    A-->>W: Secure HttpOnly access·refresh cookie + callback redirect
     W->>A: /api/v1/auth/refresh (credentials 포함)
     A-->>W: 짧은 수명의 access token
 ```
@@ -36,9 +36,9 @@ sequenceDiagram
 
 | 구분 | 정책 |
 | --- | --- |
-| Access token | 15분 만료, `Authorization: Bearer`로 전달, 웹 메모리에만 보관 |
+| Access token | 15분 만료, `geupddong_access` HttpOnly Secure 쿠키(`Path=/`)로 전달 |
 | Refresh token | 14일 만료, 회전 방식, Redis에 원문 대신 SHA-256 해시와 TTL 저장 |
-| 쿠키 | `HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/api/v1/auth` |
+| Refresh cookie | `geupddong_refresh`, `HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/api/v1/auth` |
 | 로그아웃 | 해당 refresh token을 즉시 폐기하고 쿠키 만료 |
 | 재사용 탐지 | 이미 폐기된 refresh token 사용 시 Redis의 해당 사용자 세션을 모두 폐기 |
 
@@ -177,9 +177,9 @@ refresh token은 영구 데이터가 아니라 만료되는 로그인 세션이�
 
 Redis 값에는 OAuth 응답·JWT·refresh token 원문을 넣지 않는다. `tokenHash`는 SHA-256 해시를 사용한다. 사용자별 세션 목록과 재사용 탐지는 실제 token refresh/rotation endpoint를 구현하는 WBS에서 추가한다.
 
-### MySQL DDL 초안
+### MySQL DDL (Flyway V1 적용)
 
-아래는 다음 WBS에서 Flyway migration으로 분리할 기준 DDL이다. 실제 migration에는 FK 생성 순서와 운영 DB의 문자셋을 함께 검증한다.
+아래 DDL은 `V1__create_auth_data_model.sql`로 운영 반영되었다. 운영 DB에 문서의 SQL을 직접 재실행하지 않는다.
 
 ```sql
 CREATE TABLE app_user (
@@ -266,15 +266,13 @@ CREATE TABLE audit_log (
 - `SecurityFilterChain`은 지도·화장실 조회와 health endpoint를 공개로 유지하고, 그 외 쓰기 요청은 인증을 요구한다. `/api/admin/**`, `/api/reports/**`는 `ADMIN` 역할을 요구한다.
 - 서버 세션을 만들지 않는 stateless 정책, JSON 형식의 401/403 응답, 허용 Origin의 CORS preflight를 구성했다.
 - `RedisRefreshTokenStore`는 Redis 키에 raw refresh token이 아닌 SHA-256 해시만 사용하며, TTL·개별 폐기를 지원한다. 실제 토큰 발급·회전은 OAuth 로그인 구현 단계에서 연결한다.
-- Redis는 아직 운영 Compose에 추가하지 않았다. API 코드가 `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD` 환경 변수로 연결할 준비까지만 마친 상태다.
+- OAuth 성공 처리에서 사용자·소셜 계정을 생성/연결하고, access JWT와 refresh cookie를 발급한다.
+- Redis는 운영 Compose 내부망에 배치되어 refresh token 해시·TTL·폐기를 처리한다. 외부 포트는 열지 않는다.
 
 | WBS | 선행 산출물 |
 | --- | --- |
-| 1 | Flyway migration, JPA 엔터티·Repository 완료. Redis 운영 Compose 추가는 OAuth 단계의 선행 작업 |
-| 2 | Google·Kakao 콘솔 설정, Redirect URI, GitHub/서버 시크릿 등록 기준 |
-| 3 | Spring Security OAuth2 로그인, token refresh/logout endpoint, Redis 운영 Compose |
-| 4 | JWT 검증 연결, `ADMIN` 인가, 감사 로그 기록 |
-| 7~8 | `app_user`를 제보 작성자와 승인자로 참조 |
+| 1~4 | Flyway, OAuth, Redis, JWT 쿠키, USER/ADMIN 인가, 감사 로그 구현 완료 |
+| 5~8 | `app_user`를 제보 작성자·승인자로 참조하는 제보 승인 흐름 구현 완료 |
 
 ## 8. 완료 기준
 
@@ -286,13 +284,14 @@ CREATE TABLE audit_log (
 - [x] Spring Security·OAuth2·Redis 라이브러리와 Redis 내부망 운영 구성을 명시했다.
 - [x] Flyway migration, JPA 엔터티·Repository를 구현하고 테스트했다.
 - [x] Redis 리프레시 토큰 저장소 추상화와 Spring Security 접근 경계를 구현하고 테스트했다.
-- [ ] Google·Kakao OAuth 앱·Redirect URI·시크릿을 등록한다.
-- [ ] OAuth 로그인, access JWT, token refresh/logout endpoint를 연결한다.
+- [x] Google·Kakao OAuth 앱·Redirect URI·시크릿을 등록했다.
+- [x] OAuth 로그인, access JWT, token refresh/logout endpoint를 연결했다.
 
 ## 변경 이력
 
 | 버전 | 일자 | 변경 내용 |
 | --- | --- | --- |
+| v1.3 | 2026-08-31 | OAuth 로그인, HttpOnly access/refresh 쿠키, Redis 운영 Compose, 제보 승인 연계를 실제 운영 상태로 갱신 |
 | v1.2 | 2026-08-30 | Flyway 데이터 모델, Redis token store, Spring Security 접근 경계의 구현 범위와 실제 Redis 키 정책 반영 |
 | v1.1 | 2026-08-30 | refresh token 저장소를 MySQL에서 Redis로 변경하고 라이브러리·Redis 운영 기준 추가 |
 | v1.0 | 2026-08-30 | 소셜 로그인, 권한, 세션, 감사 로그의 초기 설계 확정 |
