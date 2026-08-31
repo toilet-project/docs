@@ -1,15 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="850" viewBox="0 0 1600 850" role="img" aria-label="급똥 운영 아키텍처 v3">
-  <style>text{font-family:Arial,'Malgun Gothic',sans-serif;fill:#16382a}.t{font-size:25px;font-weight:700}.s{font-size:18px;fill:#4d685d}.b{fill:#fff;stroke:#b9ddc8;stroke-width:3}.edge{stroke:#528c68;stroke-width:4;fill:none;marker-end:url(#a)}.intern{fill:#eef8f1;stroke:#76ad8a;stroke-width:3}.ext{fill:#f8fbf9;stroke:#a9c9b3;stroke-width:3}</style>
-  <defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3z" fill="#528c68"/></marker></defs>
-  <rect width="1600" height="850" fill="#f7fbf8"/><text x="70" y="70" class="t" style="font-size:34px;fill:#08753e">급똥 운영 아키텍처 v3.0</text>
-  <rect x="70" y="135" width="250" height="110" rx="22" class="ext"/><text x="195" y="180" text-anchor="middle" class="t">사용자 브라우저</text><text x="195" y="212" text-anchor="middle" class="s">지도 · 로그인 · 제보</text>
-  <rect x="420" y="115" width="300" height="140" rx="22" class="b"/><text x="570" y="165" text-anchor="middle" class="t">Cloudflare Pages</text><text x="570" y="197" text-anchor="middle" class="s">geupddong.com · React</text><text x="570" y="225" text-anchor="middle" class="s">공개 웹</text>
-  <rect x="420" y="320" width="300" height="140" rx="22" class="b"/><text x="570" y="370" text-anchor="middle" class="t">Cloudflare</text><text x="570" y="402" text-anchor="middle" class="s">api proxy · admin Access</text><text x="570" y="430" text-anchor="middle" class="s">HTTPS · 운영자 접근 제어</text>
-  <rect x="825" y="300" width="260" height="165" rx="22" class="intern"/><text x="955" y="350" text-anchor="middle" class="t">Mini PC · Nginx</text><text x="955" y="384" text-anchor="middle" class="s">80/443 reverse proxy</text><text x="955" y="416" text-anchor="middle" class="s">Docker internal network</text>
-  <rect x="1190" y="170" width="300" height="125" rx="22" class="intern"/><text x="1340" y="215" text-anchor="middle" class="t">toilet-api</text><text x="1340" y="247" text-anchor="middle" class="s">공개 API · OAuth · 제보</text><text x="1340" y="274" text-anchor="middle" class="s">Spring Security</text>
-  <rect x="1190" y="355" width="300" height="105" rx="22" class="intern"/><text x="1340" y="400" text-anchor="middle" class="t">toilet-admin-api</text><text x="1340" y="432" text-anchor="middle" class="s">운영 대시보드 · 이력</text>
-  <rect x="1190" y="540" width="300" height="105" rx="22" class="intern"/><text x="1340" y="585" text-anchor="middle" class="t">toilet-batch</text><text x="1340" y="617" text-anchor="middle" class="s">매일 02:00 KST 증분 동기화</text>
-  <rect x="820" y="590" width="260" height="105" rx="22" class="intern"/><text x="950" y="632" text-anchor="middle" class="t">MySQL · toilet_db</text><text x="950" y="665" text-anchor="middle" class="s">영구 데이터 · 이력</text>
-  <rect x="820" y="735" width="260" height="75" rx="22" class="intern"/><text x="950" y="780" text-anchor="middle" class="t">Redis 7 · refresh session</text>
-  <path d="M320 190H420" class="edge"/><path d="M320 215V390H420" class="edge"/><path d="M720 390H825" class="edge"/><path d="M1085 350H1190" class="edge"/><path d="M1085 410H1190" class="edge"/><path d="M1085 440V590H1190" class="edge"/><path d="M1190 270H1100V642H1080" class="edge"/><path d="M1190 430H1100V642H1080" class="edge"/><path d="M1190 600H1080" class="edge"/><path d="M1190 250H1135V772H1080" class="edge"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">급똥 운영 아키텍처 v3.0</title>
+  <desc id="desc">사용자 브라우저에서 Cloudflare, Mini PC의 Nginx와 애플리케이션, MySQL과 Redis로 이어지는 운영 구조</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0 0L0 6L9 3Z" fill="#3f8660"/></marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#173d2b" flood-opacity="0.08"/></filter>
+    <style>
+      text{font-family:Arial,'Malgun Gothic',sans-serif;fill:#16382a}.title{font-size:36px;font-weight:800;fill:#08753e}.zone-title{font-size:18px;font-weight:700;fill:#3f7256;letter-spacing:1px}.box-title{font-size:23px;font-weight:700}.body{font-size:17px;fill:#536d61}.hint{font-size:15px;fill:#71877d}.zone{fill:#fff;stroke:#d8e9de;stroke-width:2}.box{fill:#fff;stroke:#add4bb;stroke-width:2.5;filter:url(#shadow)}.service{fill:#f1f9f4;stroke:#73ac87;stroke-width:2.5}.data{fill:#fffaf0;stroke:#d9b76c;stroke-width:2.5}.line{fill:none;stroke:#3f8660;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.data-line{fill:none;stroke:#b98b31;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.label{font-size:14px;font-weight:700;fill:#3f8660}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#f7fbf8"/>
+  <text x="60" y="70" class="title">급똥 운영 아키텍처 v3.0</text>
+  <text x="60" y="104" class="body">외부 진입부터 애플리케이션과 데이터 계층까지, 교차 없이 왼쪽에서 오른쪽으로 읽습니다.</text>
+
+  <rect x="45" y="145" width="260" height="690" rx="28" class="zone"/><text x="75" y="185" class="zone-title">CLIENT</text>
+  <rect x="75" y="340" width="200" height="130" rx="22" class="box"/><text x="175" y="390" text-anchor="middle" class="box-title">사용자 브라우저</text><text x="175" y="424" text-anchor="middle" class="body">지도 · 로그인 · 제보</text>
+
+  <rect x="335" y="145" width="330" height="690" rx="28" class="zone"/><text x="365" y="185" class="zone-title">CLOUDFLARE EDGE</text>
+  <rect x="375" y="235" width="250" height="135" rx="22" class="box"/><text x="500" y="282" text-anchor="middle" class="box-title">Cloudflare Pages</text><text x="500" y="315" text-anchor="middle" class="body">geupddong.com · React</text><text x="500" y="344" text-anchor="middle" class="hint">정적 웹 배포</text>
+  <rect x="375" y="480" width="250" height="150" rx="22" class="box"/><text x="500" y="527" text-anchor="middle" class="box-title">Cloudflare Edge</text><text x="500" y="560" text-anchor="middle" class="body">API Proxy · HTTPS</text><text x="500" y="592" text-anchor="middle" class="body">관리자 Access</text>
+
+  <rect x="700" y="145" width="855" height="690" rx="28" class="zone"/><text x="730" y="185" class="zone-title">MINI PC · DOCKER INTERNAL NETWORK</text>
+  <rect x="745" y="350" width="215" height="155" rx="22" class="service"/><text x="852" y="404" text-anchor="middle" class="box-title">Nginx</text><text x="852" y="438" text-anchor="middle" class="body">80/443 Reverse Proxy</text><text x="852" y="470" text-anchor="middle" class="hint">외부 요청의 단일 진입점</text>
+  <rect x="1030" y="220" width="235" height="120" rx="22" class="service"/><text x="1147" y="266" text-anchor="middle" class="box-title">toilet-api</text><text x="1147" y="298" text-anchor="middle" class="body">조회 · OAuth · 제보</text><text x="1147" y="324" text-anchor="middle" class="hint">Spring Security</text>
+  <rect x="1030" y="390" width="235" height="110" rx="22" class="service"/><text x="1147" y="435" text-anchor="middle" class="box-title">toilet-admin-api</text><text x="1147" y="468" text-anchor="middle" class="body">대시보드 · 운영 이력</text>
+  <rect x="1030" y="560" width="235" height="110" rx="22" class="service"/><text x="1147" y="605" text-anchor="middle" class="box-title">toilet-batch</text><text x="1147" y="638" text-anchor="middle" class="body">매일 02:00 KST 동기화</text>
+  <rect x="1360" y="220" width="155" height="120" rx="22" class="data"/><text x="1437" y="268" text-anchor="middle" class="box-title">Redis 7</text><text x="1437" y="300" text-anchor="middle" class="body">Refresh 세션</text><text x="1437" y="325" text-anchor="middle" class="hint">TTL · 해시</text>
+  <rect x="1360" y="430" width="155" height="165" rx="22" class="data"/><text x="1437" y="485" text-anchor="middle" class="box-title">MySQL</text><text x="1437" y="518" text-anchor="middle" class="body">toilet_db</text><text x="1437" y="550" text-anchor="middle" class="hint">영구 데이터</text><text x="1437" y="576" text-anchor="middle" class="hint">제보 · 감사 · 배치 이력</text>
+
+  <path d="M275 380H330V303H375" class="line"/><text x="318" y="288" text-anchor="middle" class="label">WEB</text>
+  <path d="M275 430H330V555H375" class="line"/><text x="318" y="543" text-anchor="middle" class="label">HTTPS</text>
+  <path d="M625 555H680V428H745" class="line"/>
+  <path d="M960 400H995V280H1030" class="line"/><path d="M960 455H1030" class="line"/>
+  <path d="M1265 280H1360" class="data-line"/>
+  <path d="M1265 310H1300V468H1360" class="data-line"/><path d="M1265 445H1318V512H1360" class="data-line"/><path d="M1265 615H1336V556H1360" class="data-line"/>
+  <text x="1313" y="414" class="label" style="fill:#9b7127">데이터 접근</text>
+  <rect x="745" y="735" width="770" height="62" rx="18" fill="#edf7f0"/><text x="1130" y="773" text-anchor="middle" class="body">MySQL · Redis · Batch는 외부 포트를 열지 않고 Docker 내부 네트워크에서만 통신합니다.</text>
 </svg>
