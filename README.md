@@ -13,7 +13,7 @@
 | 아키텍처 | [아키텍처 v3.0](architecture/architecture-v3.md) | Cloudflare·Mini PC·인증·배치까지 반영한 현재 운영 구조 |
 | 운영 | [배포·운영 가이드](operations/deployment.md) | 도메인, HTTPS, 배포 및 비밀정보 원칙 |
 | API | [Toilet API 명세](api/toilet-api.md) | 공개 지도·인증·제보·관리자 API 계약 |
-| DB | [운영 데이터 모델 v1.4](database/database-schema-v1.4.md) | 전체 테이블 관계, 실제 DDL 출처와 운영 적용 순서 |
+| DB | [운영 데이터 모델 v1.5](database/database-schema-v1.5.md) | 전체 테이블 관계, 알림을 포함한 실제 DDL 출처와 운영 적용 순서 |
 | DB | [Toilet 테이블 명세](database/toilet-table.md) | 공공데이터·좌표 정책을 포함한 화장실 원천 데이터 |
 | DB | [사용자 제보·좌표·개방시간 승인 모델 v1.4](database/user-report-coordinate-model.md) | 제보 상태 전이, 확정 좌표·주소 이력 및 적용 DDL |
 | 변경 이력 | [문서 변경 이력](changelog/CHANGELOG.md) | 스키마·아키텍처 등 주요 문서 변경 기록 |
