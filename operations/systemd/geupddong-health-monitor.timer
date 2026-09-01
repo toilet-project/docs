@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Geupddong health monitor after boot and every 5 minutes
+
+[Timer]
+OnBootSec=90s
+OnUnitActiveSec=5min
+Persistent=true
+Unit=geupddong-health-monitor.service
+
+[Install]
+WantedBy=timers.target
