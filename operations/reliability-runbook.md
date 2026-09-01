@@ -1,4 +1,4 @@
-# 운영 안정화 Runbook v1.0
+# 운영 안정화 Runbook v1.1
 
 ## 운영 목표
 
@@ -10,6 +10,7 @@
 | 장애 알림 | 최종 재시도 실패 후 운영 Webhook 전송 |
 | 컨테이너 로그 | 컨테이너별 10MB × 5개 순환 |
 | 관측 | health, Prometheus 지표, 관리자 상태 요약 |
+| 자동 점검 | 부팅 90초 후 및 5분마다 API·DB·OAuth·컨테이너 확인 |
 
 ## 백업 정책
 
@@ -23,6 +24,8 @@
 ### 자동 실행
 
 Mini PC에는 사용자 `cron` 명령이 없어 systemd timer를 사용한다. `geupddong-mysql-backup.timer`는 재부팅 후에도 자동 복구되며, 전원이 꺼져 예약 시각을 놓치면 `Persistent=true` 설정으로 다음 부팅 시 실행한다.
+
+백업 서비스는 운영 런타임인 `snap.docker.dockerd.service`만 의존한다. 일반 `docker.service`를 의존성에 추가하면 Snap Docker와 이중 실행될 수 있으므로 금지하며, 일반 Docker service/socket은 `masked` 상태를 유지한다.
 
 ```text
 매일 03:15 Asia/Seoul → geupddong-mysql-backup.service
@@ -47,6 +50,38 @@ Mini PC에는 사용자 `cron` 명령이 없어 systemd timer를 사용한다. `
 3. health가 실패하면 `docker compose up -d`로 해당 서비스만 정상화한다.
 4. DB 장애 시 최근 백업의 체크섬과 복구 리허설 결과를 먼저 확인한다.
 5. 운영 DB 복구는 별도 보존본 생성 후, 점검 시간을 공지하고 수행한다.
+
+## 재부팅 후 자동 점검과 장애 알림
+
+`geupddong-health-monitor.timer`는 부팅 90초 후 처음 실행되고 이후 5분마다 다음 항목을 검사한다.
+
+- Snap Docker 활성 및 일반 systemd Docker 비활성
+- API·Admin·Batch·MySQL·Redis·Portainer 실행 상태
+- Redis health 상태
+- 내부·외부 API health의 DB 연결 결과
+- Google·Kakao OAuth 시작 경로의 302 및 제공자 도메인
+- Nginx 접근 로그에 새로 발생한 OAuth callback 5xx
+
+실패 내용이 바뀐 경우에만 기존 `BATCH_FAILURE_WEBHOOK_URL` Discord Webhook으로 알리고, 정상 복구 시 한 번 복구 메시지를 보낸다. 비밀번호, OAuth code, 전체 요청 URL과 사용자 정보는 알림에 포함하지 않는다.
+
+운영 파일은 다음과 같이 설치한다.
+
+```text
+operations/scripts/service-health-monitor.sh
+  → /home/luha/.local/bin/service-health-monitor.sh
+operations/systemd/geupddong-health-monitor.service
+  → /etc/systemd/system/geupddong-health-monitor.service
+operations/systemd/geupddong-health-monitor.timer
+  → /etc/systemd/system/geupddong-health-monitor.timer
+```
+
+점검 명령은 다음과 같다.
+
+```bash
+systemctl status geupddong-health-monitor.timer
+systemctl status geupddong-health-monitor.service
+journalctl -u geupddong-health-monitor.service --since today
+```
 
 ## 지표 및 보관
 
