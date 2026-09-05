@@ -213,6 +213,10 @@
 
 ## 중복 좌표 데이터 품질 API
 
+> 2026-09-05 API 운영 적용: [주소 분리 저장 v1.9](../database/coordinate-address-fields-v1.9.md).
+> 위치 제보 접수·승인·직접 보정의 저장 주소는 서버가 최종 좌표로 조회한다. 기존 요청 주소 필드는 호환용이며 임의 입력으로 덮어쓰지 않는다.
+> 제보 응답에 nullable `jibunAddress`, 품질 이력에 nullable `appliedJibunAddress`가 추가된다. `roadAddress` 없이 지번만 반환될 수 있다. 조회 실패 시 `503 ADDRESS_LOOKUP_UNAVAILABLE`로 변경 없이 종료한다.
+
 모든 API는 `ADMIN` 역할이 필요하다. 이름만 보고 좌표를 자동 추정하지 않으며, 관리자가 직접 저장한 좌표만 `ADMIN_CONFIRMED`로 반영한다.
 
 | Method | Endpoint | 설명 |
@@ -220,6 +224,21 @@
 | `GET` | `/api/admin/v1/data-quality/duplicate-coordinates` | 검색어·확인 상태·페이지 기준 중복 좌표 그룹 조회 |
 | `GET` | `/api/admin/v1/data-quality/duplicate-coordinates/{groupKey}` | 그룹의 전체 화장실·대기 위치 제보·수정 이력 조회 |
 | `PATCH` | `/api/admin/v1/data-quality/duplicate-coordinates/{groupKey}/review` | `PENDING`, `NEEDS_CORRECTION`, `CONFIRMED_SHARED` 상태와 메모 저장 |
-| `POST` | `/api/admin/v1/data-quality/toilets/{toiletId}/coordinates` | 카카오맵에서 확인한 개별 화장실 좌표·도로명 주소 확정 |
+| `POST` | `/api/admin/v1/data-quality/toilets/{toiletId}/coordinates` | 카카오맵에서 확인한 개별 화장실 좌표 확정·서버 역지오코딩으로 도로명/지번 주소 분리 저장 |
 
 관리자 직접 보정은 `coordinate_revision.source=ADMIN_DIRECT`로 기록하고, 사용자 위치 제보 승인은 `USER_REPORT_APPROVED`로 구분한다. 모든 상태 변경과 좌표 변경은 감사 로그에도 남는다.
+
+## 관리자 행정구역 검토 API (2026-09-05 배포)
+
+모든 경로는 ADMIN 권한이 필요합니다. 비로그인 401, 일반 사용자 403입니다.
+
+| 메서드 | 경로 | 용도 |
+| --- | --- | --- |
+| GET | `/api/admin/v1/regions` | 상태·검색·페이지네이션, 기본 REVIEW·20건, 최대 100건 |
+| GET | `/api/admin/v1/regions/{id}` | 현재 원본·이전 판정·근거 상세 |
+| GET | `/api/admin/v1/regions/{id}/history` | 개별 판정 이력, 별도 페이지네이션 |
+| POST | `/api/admin/v1/regions/{id}/coordinates` | 사유·expectedLocation 필수, 동시 변경 409, 서버 역지오코딩 |
+
+목록은 대용량 근거 JSON이나 전체 이력을 함께 받지 않습니다. 좌표 확정 시 도로명·지번을 구분하여 저장하며, 사용자 화면은 도로명 우선 → 없으면 지번 한 가지를 표시합니다. 지역 판정은 워커가 비동기로 갱신합니다.
+
+[필터·안전 정책·배포 및 검증 결과](../operations/region-admin-review-release-2026-09-05.md)

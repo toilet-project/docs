@@ -8,7 +8,7 @@ verify_container="geupddong-restore-verify-$$"
 cleanup() {
   local status=$?
   if [[ $status -ne 0 ]]; then docker logs --tail 40 "$verify_container" >&2 || true; fi
-  docker rm -f "$verify_container" >/dev/null 2>&1 || true
+  docker rm -fv "$verify_container" >/dev/null 2>&1 || true
   return "$status"
 }
 trap cleanup EXIT
@@ -17,13 +17,15 @@ if [[ -z "$backup_file" || ! -r "$backup_file" || ! -r "$key_file" ]]; then
   echo "검증할 백업 또는 암호화 키를 읽을 수 없습니다." >&2; exit 1
 fi
 (cd "$(dirname "$backup_file")" && sha256sum -c "$(basename "$backup_file").sha256")
-docker run -d --name "$verify_container" -e MYSQL_ALLOW_EMPTY_PASSWORD=yes mysql:8.0 \
+docker run -d --name "$verify_container" --network none --memory 1g --cpus 1 -e MYSQL_ALLOW_EMPTY_PASSWORD=yes mysql:8.0 \
   --max-allowed-packet=1073741824 >/dev/null
 for _ in $(seq 1 60); do
-  if docker exec "$verify_container" mysqladmin -uroot ping --silent; then break; fi
+  # The entrypoint's temporary initialization server has a socket but no TCP port.
+  # Wait for the final server so initialization shutdown cannot interrupt restore.
+  if docker exec "$verify_container" mysqladmin --protocol=tcp -h127.0.0.1 -uroot ping --silent 2>/dev/null; then break; fi
   sleep 2
 done
-docker exec "$verify_container" mysqladmin -uroot ping --silent
+docker exec "$verify_container" mysqladmin --protocol=tcp -h127.0.0.1 -uroot ping --silent
 openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass "file:$key_file" -in "$backup_file" \
   | gzip -dc | docker exec -i "$verify_container" mysql -uroot
 table_count="$(docker exec "$verify_container" mysql -N -uroot -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='toilet_db';")"
