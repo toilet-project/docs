@@ -7,7 +7,7 @@ After=network-online.target
 Type=oneshot
 User=luha
 Group=luha
-Environment=GEUPDDONG_WORKER_ORIGIN=https://preview.geupddong.com
+Environment=GEUPDDONG_WORKER_ORIGIN=https://geupddong.com
 ExecStart=/usr/bin/python3 /home/luha/.local/bin/worker-health-monitor.py
 TimeoutStartSec=50
 UMask=0077

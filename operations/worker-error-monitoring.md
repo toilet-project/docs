@@ -6,7 +6,7 @@
 
 Worker의 CPU/메모리 한도 초과는 실행 자체를 중단할 수 있으므로 Worker 내부 catch에만 의존하지 않는다. 미니 PC의 별도 systemd timer가 5분마다 preview 홈과 상세 표본을 외부 HTTPS GET으로 확인한다. 기존 API/DB/OAuth 감시와는 별도의 서비스·상태다.
 
-- 현재 대상: `https://preview.geupddong.com`. 본 도메인 전환 전 운영 감시 완료라고 표시하지 않는다.
+- 현재 대상: `https://geupddong.com`. 2026-09-06 승인된 운영 전환 후 preview에서 본 주소로 변경했다.
 - 운영 전환 시 `GEUPDDONG_WORKER_ORIGIN`을 승인된 본 도메인으로 변경하고 다시 검증한다. 두 origin만 코드에서 허용한다.
 - 외부 요청은 회당 2건, 요청별 timeout 10초, redirect 따라가지 않음. 상태 판별용 본문은 최대 64KiB만 읽고 폐기한다.
 - 표본의 지속적 오류를 탐지하는 감시다. 모든 사용자·모든 상세의 순간적인 오류를 수집하지 못하며, 감시 PC/네트워크가 함께 멈추면 알림도 불가능하다. Cloudflare 로그와 오류 지표도 함께 확인해야 한다.
@@ -59,3 +59,7 @@ Worker의 CPU/메모리 한도 초과는 실행 자체를 중단할 수 있으�
 2026-09-06 KST에 독립 service/timer를 설치·활성화했다. systemd 설정 검증과 첫 실행이 성공했고, 실제 두 경로는 모두 200/OK였다. 재부팅 후 시작과 5분 주기 다음 실행 예약을 확인했다. 기존 API/DB/OAuth 감시 타이머도 계속 active다.
 
 실제 Discord 테스트 전송은 성공 응답을 받았다. 이는 webhook 수락 확인이며 사용자의 Discord 앱 열람 확인과는 구분한다. 실제 장애를 발생시키는 테스트는 하지 않았다. 플랜/본 도메인/업무 DB·컨테이너 재시작은 변경하지 않았다.
+
+### 운영 전환 후 갱신
+
+2026-09-06 사용자 승인에 따른 본 도메인 전환 후, service의 `GEUPDDONG_WORKER_ORIGIN`을 운영 주소로 바꿨다. 이전 unit은 별도 복구본으로 보존했다. 새 unit 검증·daemon-reload·첫 실행 성공 및 timer active를 확인했고, 홈/상세 표본은 모두 200/OK였다. webhook 값, 감시 코드, 기존 API/DB/OAuth 감시 및 Free 요금제는 변경하지 않았다. 위 설치 결과는 전환 전 당시 기록이다.
