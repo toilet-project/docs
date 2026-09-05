@@ -1,0 +1,16 @@
+name: Worker monitor tests
+on:
+  push:
+    branches: [feature/workers-error-alerts, main, develop]
+    paths: ['operations/scripts/worker-health-monitor.py', 'operations/tests/**', '.github/workflows/worker-monitor-tests.yml']
+  pull_request:
+    paths: ['operations/scripts/worker-health-monitor.py', 'operations/tests/**', '.github/workflows/worker-monitor-tests.yml']
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m unittest discover -s operations/tests -v

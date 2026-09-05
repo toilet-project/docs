@@ -1,0 +1,18 @@
+[Unit]
+Description=Geupddong external Workers error probe and Discord alert
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=luha
+Group=luha
+Environment=GEUPDDONG_WORKER_ORIGIN=https://geupddong.com
+ExecStart=/usr/bin/python3 /home/luha/.local/bin/worker-health-monitor.py
+TimeoutStartSec=50
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/luha/.local/state/geupddong-worker-monitor
