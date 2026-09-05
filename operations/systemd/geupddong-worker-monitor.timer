@@ -1,0 +1,11 @@
+[Unit]
+Description=Check Geupddong Workers after boot and every five minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+AccuracySec=10s
+Unit=geupddong-worker-monitor.service
+
+[Install]
+WantedBy=timers.target
