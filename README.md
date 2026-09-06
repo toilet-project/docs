@@ -23,6 +23,7 @@
 | 운영 · R2/백업 준비 | [R2·독립 기준·백업 준비 점검](operations/account-erasure-r2-backup-readiness-2026-09-07.md) | 읽기 전용 검사, 초기 기준·metadata 백업·비공개 보호 제한 확인 |
 | 운영 · 신규 백업 검증 | [메타데이터 백업·격리 복원](operations/account-erasure-metadata-backup-rehearsal-2026-09-07.md) | 신규 백업 1건·V11 가상 파기 통과, 기존 운영 보존. 정기 설치는 별도 |
 | 운영 · 백업 전환 | [독립 초기 기준·정기 metadata 백업](operations/account-erasure-backup-transition-2026-09-07.md) | 초기 기준 등록·03:15 백업/04:15 dry-run 설치·Discord 확인. 회원 파기는 미활성 |
+| 운영 · 기존 백업 검토 | [첫 정기 실행·legacy 백업 정리안](operations/account-erasure-legacy-backup-plan-2026-09-07.md) | 11개 체크섬 확인·10개 metadata 없음·삭제 없이 보존/검토 |
 | 운영 · 최신 구현 검증 | [자동 파기 배치 이관 검증](operations/account-erasure-batch-verification-2026-09-06.md) | 공공데이터 동기화 후 파기, 실패 분리·재시도, 운영 미적용 |
 | 운영 · 실제 DB 검증 | [회원 파기 MySQL 검증](operations/account-retention-native-mysql-2026-09-06.md) | 로컬 MySQL 17건 통과, 운영 버전 차이·남은 조건 |
 | 운영 · 최신 파기 검증 | [R2 암호화 파기 대장](operations/account-erasure-r2-2026-09-06.md) | 비공개 버킷·가상 데이터 왕복 확인, 로컬 구현 및 운영 전 남은 조건 |

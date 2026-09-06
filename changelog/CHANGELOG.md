@@ -1,5 +1,11 @@
 # 문서 변경 이력
 
+## 2026-09-07 — 기존 백업 목록·정리 검토안
+
+- [검토안](../operations/account-erasure-legacy-backup-plan-2026-09-07.md): 백업 11개 약 79.4 MB, checksum 전부 일치, 기존 10개 metadata 없음.
+- 00:49 기준 첫 정기 실행은 아직 03:15 예정. 기존 성공 기록과 새 설정 성공을 구분했다.
+- 현재 삭제 제안 없음. mtime/크기 기반 자동 판단 금지, 실제 복원 검증 후 별도 legacy 계획·승인 필요.
+
 ## 2026-09-07 — 독립 초기 기준·정기 백업 전환
 
 - [전환 결과](../operations/account-erasure-backup-transition-2026-09-07.md): 검토한 0건 초기 기준을 비공개 저장소에 기록하고 CI 통과.
