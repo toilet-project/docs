@@ -61,7 +61,7 @@ Java 21 JCA AES/GCM, 기존 Jackson JSON, AWS SDK for Java v2 `s3`/`url-connecti
 
 배치의 `accountErasureRestore` Gradle JavaExec 태스크는 기본 dry-run이며 명시적인 `--apply`에서만 변경한다. 웹 API나 정기 스케줄로 노출하지 않았다.
 
-- localhost의 비운영 포트와 `erasure_restore_<난수>` 스키마만 허용한다.
+- 기본 수동 CLI 모드는 localhost의 비운영 포트와 `erasure_restore_<난수>` 스키마만 허용한다. 후속 [컨테이너 복원 리허설](account-erasure-restore-rehearsal-2026-09-06.md)은 별도 모드에서 생성한 컨테이너의 내부 IP·43317 포트·toilet_db·서버 UUID·guard를 함께 검증한다.
 - DB의 `erasure_restore_guard.marker`가 별도 32자리 난수와 일치해야 한다.
 - 쓰기 중단 확인이 필요하며 apply에는 Redis 세션 초기화 확인도 필요하다.
 - 예상 객체 수와 전체 목록이 일치하고 모든 레코드의 복호화·realm·파기 기준 시각 검증이 끝난 후에만 DB를 처리한다.
@@ -70,7 +70,7 @@ Java 21 JCA AES/GCM, 기존 Jackson JSON, AWS SDK for Java v2 `s3`/`url-connecti
 
 추가 환경 변수: `ERASURE_RESTORE_URL`, `ERASURE_RESTORE_DB_USER`, `ERASURE_RESTORE_DB_PASSWORD`, `ERASURE_RESTORE_MARKER`, `ERASURE_RESTORE_EXPECTED_OBJECTS`, `ERASURE_RESTORE_WRITERS_STOPPED=true`, 적용 시 `ERASURE_RESTORE_REDIS_RESET_CONFIRMED=true`. 일반 Spring Boot 기동이 아니므로 위 R2 설정도 환경 변수로 모두 제공한다.
 
-**제한:** 예상 건수를 신뢰할 수 있는 독립 목록으로 확인해야 한다. 이미 객체가 유실된 목록을 보고 예상 건수를 줄이면 누락 탐지가 되지 않는다. R2 보존 잠금·실제 최장 백업 기간·대장 만료 정책은 아직 미설정이다. 기존 `mysql-restore-verify.sh`에 이 도구를 통합한 전체 백업 복원 리허설도 남아 있다. 현재 도구만으로 복원 운영 승인 조건을 충족했다고 보지 않는다.
+**제한:** 예상 건수를 신뢰할 수 있는 독립 목록으로 확인해야 한다. 이미 객체가 유실된 목록을 보고 예상 건수를 줄이면 누락 탐지가 되지 않는다. R2 보존 잠금·실제 최장 백업 기간·대장 만료 정책은 아직 미설정이다. 후속 [복원 wrapper·가상 백업 리허설](account-erasure-restore-rehearsal-2026-09-06.md)은 완료했지만 실제 운영 전체 스키마·백업으로 한 리허설은 남아 있다. 현재 도구만으로 복원 운영 승인 조건을 충족했다고 보지 않는다.
 
 ## 실제 검증 결과
 

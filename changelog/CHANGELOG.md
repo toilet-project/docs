@@ -1,5 +1,13 @@
 # 문서 변경 이력
 
+## 2026-09-06 — 암호화 백업 복원·회원 재파기 통합 리허설
+
+- [최종 보고서](../operations/account-erasure-restore-rehearsal-2026-09-06.md): MySQL 8.0.46 가상 암호화 백업 복원, 대상 1명 재파기·다른 회원/제보 보존, 대장 건수 불일치 거부·임시 자원 정리 통과.
+- Docker 내부 네트워크의 포트 공개 대신 내부 IP 접속으로 격리를 유지했다. 최초 실패와 최종 성공을 구분해 기록했다.
+- UTC 환경의 DATETIME→Timestamp 변환으로 인한 생성 시각 비교 실패를 재현하고 API·배치를 LocalDateTime 직접 읽기로 수정했다. 기존 DB 값 변경 없음.
+- API f75d4e2·배치 d2a70b3 feature push 및 CI 성공. main 병합·운영 배포 없음. docs wrapper는 로컬 구현이다.
+- 실제 백업 타이머/보관 설정을 읽기 전용 확인하고, 다른 사본·정확한 만료·R2 조건부 대장 정리 정책은 미확정으로 남겼다.
+
 ## 2026-09-06 — GitHub Secrets 기반 R2 실제 연결 검증
 
 - 사용자 승인 후 API `8cce474`·배치 `a06488e`를 feature 브랜치에 push했다. main 병합·운영 배포는 하지 않았다.
