@@ -1,5 +1,11 @@
 # 문서 변경 이력
 
+## 2026-09-06 — 회원 탈퇴·선택적 복구·파기 구현안
+
+- [v1.11 데이터 모델](../database/account-withdrawal-retention-v1.11.md)과 DDL 추가. 선택 동의·달력상 3개월·명시적 복구·회원 연결 파기를 정의했다.
+- [파기 Runbook](../operations/account-erasure-runbook.md)에 체크포인트·재시도·백업 복원 재적용 및 운영 활성화 조건을 정리했다.
+- [검증 보고서](../operations/account-retention-verification-2026-09-06.md)에 통과·실패·건너뜀을 구분했다. 로컬 구현이며 운영 미적용이다.
+
 ## 2026-09-05 — 실제 위치 제보 승인·행정구역 재판정 검증
 
 - 사용자 실제 제보 승인 후 ADMIN_CONFIRMED, 도로명/지번 분리 저장 및 변경 전후 이력을 확인했다.
