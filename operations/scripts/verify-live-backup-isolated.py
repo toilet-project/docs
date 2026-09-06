@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import re
 import secrets
+import signal
 import stat
 import subprocess
 import sys
@@ -61,6 +62,9 @@ def verify_metadata(backup, expected_epoch, expected_server_uuid):
 
 
 def main():
+    def interrupted(signum, frame):
+        raise InterruptedError('restore interrupted; cleanup required')
+    signal.signal(signal.SIGTERM, interrupted)
     phase = "preflight"
     container = None
     network = None

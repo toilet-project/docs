@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily isolated restore verification after the encrypted backup window
+
+[Timer]
+OnCalendar=*-*-* 03:35:00 Asia/Seoul
+Persistent=true
+Unit=geupddong-backup-restore.service
+
+[Install]
+WantedBy=timers.target
