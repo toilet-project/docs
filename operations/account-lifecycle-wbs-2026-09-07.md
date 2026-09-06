@@ -46,14 +46,14 @@ API와 batch는 같은 보호 계약을 사용한다. DB 행·기한을 확인�
 
 | 코드 | 분류 | 항목 | 상태 / 완료 범위 |
 | --- | --- | --- | --- |
-| A | API | 계정 복구·파기 백엔드 및 V11 준비 배포 | 완료 — 구현·준비 배포, 기능 활성화 제외 |
-| B | BATCH | 공공데이터 후속 회원 파기 배치 구현 | 완료 — gate·재시도·준비 배포, 실회원 파기 제외 |
-| C | BATCH | 암호화 백업·격리 복원·삭제 없는 점검 자동화 | 완료 — 설치·수동 검증, 첫 정기 인수는 G |
-| D | API | R2 파기 대장·독립 체크포인트 보호 계층 | 완료 — 구현·인증 읽기·준비 배포, 운영 쓰기 인수는 G |
-| E | API | Redis 비영속 전환·배포 복구 안전장치 | 완료 — 디스크 연결 분리·로그인 확인, 과거 파일 정리는 H |
-| F | WEB | 탈퇴 선택 동의·복구 화면 및 정책 공개 | 진행중 — feature UI 있음, 운영 공개·최종 고지 미완료 |
-| G | BATCH | 첫 정기 인수·회원 파기 활성화 검증 | 진행중 — 예약·준비 배포 확인, 정기 결과·실제 쓰기 미확인 |
-| H | DOCS | 기존 사본·파기 대장 보관 정책 및 안전 정리 | 진행중 — 현황 조사·보존 완료, 최종 정책·승인 삭제 미완료 |
+| A | API | [#88 계정 복구·파기 백엔드 및 V11 준비 배포](https://github.com/toilet-project/toilet-api/issues/88) | 완료 — 구현·준비 배포, 기능 활성화 제외 |
+| B | BATCH | [#40 공공데이터 후속 회원 파기 배치 구현](https://github.com/toilet-project/toilet-batch/issues/40) | 완료 — gate·재시도·준비 배포, 실회원 파기 제외 |
+| C | BATCH | [#39 암호화 백업·격리 복원·삭제 없는 점검 자동화](https://github.com/toilet-project/toilet-batch/issues/39) | 완료 — 설치·수동 검증, 첫 정기 인수는 G |
+| D | API | [#87 R2 파기 대장·독립 체크포인트 보호 계층](https://github.com/toilet-project/toilet-api/issues/87) | 완료 — 구현·인증 읽기·준비 배포, 운영 쓰기 인수는 G |
+| E | API | [#89 Redis 비영속 전환·배포 복구 안전장치](https://github.com/toilet-project/toilet-api/issues/89) | 완료 — 디스크 연결 분리·로그인 확인, 과거 파일 정리는 H |
+| F | WEB | [#197 탈퇴 선택 동의·복구 화면 및 정책 공개](https://github.com/toilet-project/toilet-web/issues/197) | 진행중 — feature UI 있음, 운영 공개·최종 고지 미완료 |
+| G | BATCH | [#41 첫 정기 인수·회원 파기 활성화 검증](https://github.com/toilet-project/toilet-batch/issues/41) | 진행중 — 예약·준비 배포 확인, 정기 결과·실제 쓰기 미확인 |
+| H | DOCS | [#72 기존 사본·파기 대장 보관 정책 및 안전 정리](https://github.com/toilet-project/docs/issues/72) | 진행중 — 현황 조사·보존 완료, 최종 정책·승인 삭제 미완료 |
 
 의존 관계: A+B+D+E 준비 배포 → C 정기 인수 → F 정책/화면 공개 및 H 보관·복원 경계 확정 → G 별도 활성화 승인·검증. G에는 선행 작업의 상태를 확인하는 인수 체크만 두고, F/H 작업 자체를 중복 완료 처리하지 않는다.
 
