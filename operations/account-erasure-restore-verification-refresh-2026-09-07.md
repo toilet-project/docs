@@ -55,6 +55,7 @@ receipt는 결과 hash·백업 hash·세대·검증 시각만 기록하며 테�
 
 - 정책: 성공/실패, 필수 증빙 누락, 잘못된 자료형, 오래된 캡처/결과, 미래/역전 시각, 세대 불일치, 중복 JSON/설정 거부.
 - Linux 파일시스템: dry-run 무변경, 적용 시 한 설정만 교체, receipt 최소화, 재시도/동시 잠금, 파일 변조, checksum 오류, 기존 보호본 누락, 오래된 후보, 링크/권한, receipt 충돌, atomic replace 실패.
-- 로컬 Windows 전체 41개 중 20개 통과, POSIX 전용 21개는 건너뜀. Linux 전체 실행은 [CI workflow](../.github/workflows/operations-script-tests.yml)에서 확인한다. 테스트 fixture만 사용하며 운영 인증 정보는 주입하지 않는다.
+- 로컬 Windows 전체 41개 중 20개 통과, POSIX 전용 21개는 건너뜀.
+- Linux Python 3.12 CI: **41개 전부 통과, skip 0**, 백업/점검 shell 문법 검사 통과. 새 갱신 도구 테스트는 이 중 20개이며 나머지 21개는 기존 복원/알림 회귀 테스트다. [feature CI](https://github.com/toilet-project/docs/actions/runs/34044071312), [PR 통합 CI](https://github.com/toilet-project/docs/actions/runs/34044074220). 테스트 대상 코드 commit `4b72fcd`. 테스트 fixture만 사용하며 운영 인증 정보는 주입하지 않는다.
 
-남은 작업: Linux CI 결과 확인, 설치 경로·자동 격리 복원 주기·리소스 제한·실패 알림·비공개 결과 보관 기간 검토, 운영 설치 승인 및 새 실제 복원 결과로 dry-run/적용 검증. 회원 자동 파기는 계속 비활성이다.
+남은 작업: 설치 경로·자동 격리 복원 주기·리소스 제한·실패 알림·비공개 결과 보관 기간 검토, 운영 설치 승인 및 새 실제 복원 결과로 dry-run/적용 검증. 회원 자동 파기는 계속 비활성이다.
