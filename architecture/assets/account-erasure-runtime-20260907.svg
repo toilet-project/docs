@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="780" viewBox="0 0 1120 780" role="img" aria-labelledby="t d">
+<title id="t">급똥 계정 복구·파기 준비 배포 아키텍처</title><desc id="d">현재 웹, API, MySQL, 메모리 Redis 및 배치는 운영 중이다. 파기 보호 계층에서 외부 R2와 GitHub로 쓰는 경로는 구현·배포됐지만 비활성이다.</desc>
+<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8" fill="#39825e"/></marker><marker id="b" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8" fill="#b77724"/></marker><style>text{font-family:'Malgun Gothic',Arial,sans-serif;fill:#183b2b}.title{font-size:30px;font-weight:700}.sub{font-size:18px;fill:#52685c}.head{font-size:22px;font-weight:700}.body{font-size:18px}.note{font-size:16px;fill:#52685c}.live{fill:#f0f8f3;stroke:#8dbaa0;stroke-width:1.5}.off{fill:#fff8eb;stroke:#d5af74;stroke-width:1.5;stroke-dasharray:6 4}.edge{fill:none;stroke:#39825e;stroke-width:2;marker-end:url(#a)}.future{fill:none;stroke:#b77724;stroke-width:2;stroke-dasharray:7 5;marker-end:url(#b)}</style></defs>
+<rect width="1120" height="780" fill="#fff"/><text x="40" y="52" class="title">계정 복구·파기 준비 배포 구조</text><text x="40" y="84" class="sub">2026.09.07 · 실선: 현재 운영 연결 / 점선: 구현·배포 완료, 기능 OFF</text>
+<rect x="35" y="120" width="1050" height="360" rx="18" fill="#f8fbf9" stroke="#d9e5dd"/><text x="60" y="153" class="note">현재 서비스 · 일반 로그인 및 공공데이터 동기화 유지</text>
+<rect x="60" y="190" width="265" height="100" rx="12" class="live"/><text x="80" y="228" class="head">사용자 웹</text><text x="80" y="262" class="body">Next.js · Cloudflare Workers</text>
+<path d="M325 240H412" class="edge"/><text x="345" y="225" class="note">HTTPS</text>
+<rect x="420" y="190" width="280" height="100" rx="12" class="live"/><text x="440" y="228" class="head">toilet-api</text><text x="440" y="262" class="body">OAuth · 조회 · V11 migration</text>
+<path d="M700 240H782" class="edge"/>
+<rect x="790" y="190" width="270" height="100" rx="12" class="live"/><text x="810" y="228" class="head">MySQL · toilet_db</text><text x="810" y="262" class="body">V11 적용 · 탈퇴 대기 테이블</text>
+<path d="M560 290V342" class="edge"/>
+<rect x="420" y="350" width="280" height="100" rx="12" class="live"/><text x="440" y="388" class="head">Redis · 메모리 전용</text><text x="440" y="422" class="body">refresh 세션 · RDB/AOF OFF</text>
+<rect x="790" y="350" width="270" height="100" rx="12" class="live"/><text x="810" y="388" class="head">toilet-batch</text><text x="810" y="422" class="body">02:00 KST · 공공데이터</text><path d="M925 350V299" class="edge"/><path d="M790 400H708" class="edge"/>
+<text x="60" y="357" class="body">탈퇴·복구: 점검 상태</text><text x="60" y="388" class="note">Redis 재시작 시 재로그인</text><text x="60" y="417" class="note">기존 디스크 파일: 별도 보존</text>
+<text x="40" y="523" class="note">API·batch의 공유 보호 검증 순서 — 현재 실행하지 않음</text>
+<rect x="60" y="559" width="295" height="120" rx="12" class="off"/><text x="80" y="598" class="head">공유 파기 서비스</text><text x="80" y="632" class="body">OFF · 동일 SQL / 검증 계약</text><text x="80" y="660" class="note">검증 실패 시 회원 삭제 중단</text>
+<path d="M355 617H402" class="future"/>
+<rect x="410" y="559" width="300" height="120" rx="12" class="off"/><text x="430" y="598" class="head">Cloudflare R2 · 비공개</text><text x="430" y="632" class="body">암호화 파기 의도 · catalogue</text><text x="430" y="660" class="note">선기록·읽기 검증 / 쓰기 OFF</text>
+<path d="M710 617H752" class="future"/>
+<rect x="760" y="559" width="300" height="120" rx="12" class="off"/><text x="780" y="598" class="head">독립 GitHub 저장소</text><text x="780" y="632" class="body">건수 · hash · DB 복원 세대</text><text x="780" y="660" class="note">회원 목록·비밀키 저장 안 함</text>
+<text x="40" y="729" class="body">파기 허용 조건: R2 검증 + 독립 기준 확인 → Redis 정리 → MySQL 트랜잭션</text><text x="40" y="759" class="note">미니 PC의 DB 장애·백업 복원과 별개로, 외부 검증 기준을 보존합니다.</text>
+</svg>

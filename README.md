@@ -8,6 +8,8 @@
 
 ## 최신 작업 요약
 
+계정 복구·파기는 **API·batch·V11·Redis 준비 배포 완료 / 자동 파기 OFF** 상태입니다. [WBS 통합 안내와 흐름도](operations/account-lifecycle-wbs-2026-09-07.md)에서 현재 운영 구조, 백업·복원 일정, 파기 검증 순서, 완료/미완료 항목을 확인하세요. 이전 일자 보고서는 당시 상태를 기록한 것입니다.
+
 행정구역 정규화는 설계 → 표본 검증 → 전수 분석 → 운영 적재 → 관리자 검토 → 실제 제보 승인·자동 재판정까지 확인했습니다. 다음 정기 배치의 확정 좌표·주소 보호 확인은 남아 있습니다. [관리자 검토 배포 보고서](operations/region-admin-review-release-2026-09-05.md)에서 최신 결과를 확인할 수 있습니다. 과거 보고서는 당시 시점의 기록이며, 상세 JSON·시설별 검토 목록은 비공개로 보존합니다.
 
 ## 문서 목록
@@ -15,7 +17,8 @@
 | 구분 | 문서 | 설명 |
 | --- | --- | --- |
 | 아키텍처 | [아키텍처 v3.0](architecture/architecture-v3.md) | Cloudflare·Mini PC·인증·배치까지 반영한 현재 운영 구조 |
-| DB · 구현안 | [회원 탈퇴·복구·파기 v1.11](database/account-withdrawal-retention-v1.11.md) | 선택 동의·3개월 복구·회원 연결 파기. 운영 미적용 |
+| 운영 · WBS 최신 | [계정 복구·파기 통합 흐름도](operations/account-lifecycle-wbs-2026-09-07.md) | 현재 구조·정기 보호 흐름·파기 gate·기능별 진행 상태 |
+| DB · 준비 배포 | [회원 탈퇴·복구·파기 v1.11](database/account-withdrawal-retention-v1.11.md) | V11 운영 적용. 탈퇴·복구 점검 및 자동 파기 OFF |
 | 운영 · 적용 전 필수 | [회원정보 자동 파기 Runbook](operations/account-erasure-runbook.md) | MySQL·백업 복원 검증, 모니터링, 재시도·롤백 제한 |
 | 운영 · 배포 검토 | [회원 복구·파기 운영 반영 사전 검토](operations/account-erasure-production-readiness-2026-09-06.md) | R2/Redis 연결·중지 스위치·Flyway 중복 방지. 보완 전 main 병합 보류 |
 | 운영 · 배포 보완 | [복구·파기 중지 및 시크릿 전달 보완](operations/account-erasure-deployment-guards-2026-09-07.md) | 기존 Redis 재사용·전체 중지 경로·준비 배포 승인 검사. 운영 미적용 |

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="750" viewBox="0 0 1120 750" role="img" aria-labelledby="t d">
+<title id="t">매일 실행하는 백업·격리 복원·삭제 없는 점검</title><desc id="d">03시15분 암호화 백업, 03시35분 격리 복원, 04시15분 삭제 없는 점검을 실행한다. 장애 또는 보류는 Discord 알림으로 연결하며 04시20분 Codex 확인은 일회성이고 로컬 앱 실행이 필요하다.</desc>
+<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8" fill="#39825e"/></marker><style>text{font-family:'Malgun Gothic',Arial,sans-serif;fill:#183b2b}.title{font-size:30px;font-weight:700}.sub{font-size:18px;fill:#52685c}.head{font-size:23px;font-weight:700}.body{font-size:19px}.note{font-size:17px;fill:#52685c}.box{fill:#f0f8f3;stroke:#8dbaa0;stroke-width:1.5}.edge{fill:none;stroke:#39825e;stroke-width:2;marker-end:url(#a)}</style></defs>
+<rect width="1120" height="750" fill="#fff"/><text x="40" y="52" class="title">매일의 운영 보호 흐름</text><text x="40" y="85" class="sub">KST · 미니 PC systemd가 자동 실행 · 개인 PC가 꺼져 있어도 실행</text>
+<rect x="40" y="120" width="1040" height="80" rx="14" fill="#f8fbf9" stroke="#d9e5dd"/><text x="65" y="154" class="head">02:00 공공데이터 동기화</text><text x="65" y="182" class="note">동기화 종료 후 회원 파기 호출 경로는 구현됨 · 현재 maintenance=true이므로 파기하지 않음</text>
+<rect x="40" y="255" width="305" height="180" rx="14" class="box"/><text x="63" y="294" class="head">03:15 · 암호화 백업</text><text x="63" y="335" class="body">일관된 SQL dump → 암호화</text><text x="63" y="369" class="note">SHA256 · 캡처 시각 · DB 세대</text><text x="63" y="402" class="note">metadata 없는 과거 파일 보존</text>
+<path d="M345 340H393" class="edge"/>
+<rect x="402" y="255" width="305" height="180" rx="14" class="box"/><text x="425" y="294" class="head">03:35 · 격리 복원</text><text x="425" y="335" class="body">운영과 같은 MySQL 이미지</text><text x="425" y="369" class="note">별도 컨테이너 · 네트워크 없음</text><text x="425" y="402" class="note">구조 / FK → 검증본 hash 갱신</text>
+<path d="M707 340H755" class="edge"/>
+<rect x="764" y="255" width="315" height="180" rx="14" class="box"/><text x="787" y="294" class="head">04:15 · 삭제 없는 점검</text><text x="787" y="335" class="body">metadata · 세대 · 검증본 대조</text><text x="787" y="369" class="note">삭제 후보 / 보류 사유 판별</text><text x="787" y="402" class="note">dry-run · 실제 백업 삭제 0</text>
+<path d="M554 435V483" class="edge"/>
+<path d="M193 435V463H265V483" class="edge"/><path d="M925 435V463H850V483" class="edge"/>
+<rect x="240" y="492" width="635" height="93" rx="14" fill="#fff8eb" stroke="#d5af74"/><text x="264" y="529" class="head">실패·보류 → Discord 운영 알림</text><text x="264" y="563" class="note">각 서비스의 실패 경로 · 중복 알림 쿨다운 · 회원정보 없이 전송</text>
+<text x="40" y="224" class="note">아래 3개 작업은 동일한 백업 lock 사용 · 겹치면 무리하게 병행하지 않고 보류/실패 처리</text>
+<rect x="40" y="626" width="1040" height="86" rx="14" fill="#f5f6f8" stroke="#d8dfe4"/><text x="65" y="660" class="head">04:20 · 첫 정기 실행 결과 확인 (일회성)</text><text x="65" y="692" class="note">Codex 로컬 앱의 별도 확인 예약 · 미니 PC 스케줄러가 아니며, 상시 실행으로 표시하지 않음</text>
+</svg>
