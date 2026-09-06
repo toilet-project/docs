@@ -17,6 +17,7 @@
 | 아키텍처 | [아키텍처 v3.0](architecture/architecture-v3.md) | Cloudflare·Mini PC·인증·배치까지 반영한 현재 운영 구조 |
 | DB · 구현안 | [회원 탈퇴·복구·파기 v1.11](database/account-withdrawal-retention-v1.11.md) | 선택 동의·3개월 복구·회원 연결 파기. 운영 미적용 |
 | 운영 · 적용 전 필수 | [회원정보 자동 파기 Runbook](operations/account-erasure-runbook.md) | MySQL·백업 복원 검증, 모니터링, 재시도·롤백 제한 |
+| 운영 · 최신 구현 검증 | [자동 파기 배치 이관 검증](operations/account-erasure-batch-verification-2026-09-06.md) | 공공데이터 동기화 후 파기, 실패 분리·재시도, 운영 미적용 |
 | 운영 · 구현 검증 | [탈퇴·복구 검증 결과](operations/account-retention-verification-2026-09-06.md) | 로컬 SQL·인증·모바일/PC 검증, 전체 테스트 실패·미검증 사항 |
 | 운영 | [배포·운영 가이드](operations/deployment.md) | 도메인, HTTPS, 배포 및 비밀정보 원칙 |
 | 운영 | [운영 안정화 Runbook v1.1](operations/reliability-runbook.md) | 암호화 백업·복구, 재부팅 자동 점검, DB·OAuth 장애 알림 절차 |

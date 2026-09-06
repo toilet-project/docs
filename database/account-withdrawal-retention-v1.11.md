@@ -38,7 +38,7 @@
 | next_attempt_at | 다음 처리 가능 시각. 초기에는 purge_after |
 | last_failure_code | 개인정보 없는 고정 실패 코드 |
 
-인덱스 `idx_withdrawal_due(next_attempt_at, user_id)`는 `WHERE next_attempt_at <= now ORDER BY next_attempt_at,user_id LIMIT 50`에 대응한다.
+인덱스 `idx_withdrawal_due(next_attempt_at, user_id)`는 처리 가능 시각 필터를 지원한다. 배치는 삭제 중 OFFSET 누락을 방지하려고 `user_id > lastId ORDER BY user_id LIMIT 50` 방식으로 순회하며 purge_after도 확인한다. PK/처리 시각 인덱스의 실제 선택과 정렬 비용은 운영 유사 MySQL에서 EXPLAIN 검증 후 판단하며 인덱스를 추가하지 않았다.
 
 ## 탈퇴 즉시 처리
 
@@ -76,13 +76,17 @@
 
 ## 자동 파기 및 장애
 
-- Spring 스케줄러가 **1분마다 최대 50명**을 처리한다. AI나 사용자 PC가 계속 실행될 필요가 없다.
-- `ACCOUNT_RETENTION_ENABLED=true` 활성화가 필요하다. 기본 false이며 배포 전 검증을 마친 후 설정한다.
-- 재시작 시 DB의 미처리 기한을 다시 조회하므로 누락된 작업도 이어서 처리한다.
+- 정기 파기는 **toilet-batch의 매일 02:00 KST 공공데이터 동기화 종료 직후** 실행한다. 동기화 성공/실패 모두 finally에서 후속 실행한다. API의 1분 스케줄러는 제거했다.
+- 50명씩 keyset 조회, 기본 최대 5,000명/실행. 수동 동기화·정규화 CLI에는 파기를 연결하지 않는다.
+- API `ACCOUNT_RETENTION_ENABLED`, batch `ACCOUNT_ERASURE_ENABLED`는 별도 스위치이며 둘 다 기본 false다. 배치 배포 워크플로에서도 아직 false를 고정했다.
+- 재시작 즉시 실행하지 않고 다음 일일 동기화 종료 후 DB 미처리 기한을 다시 조회한다. 동기화가 장시간 끝나지 않으면 파기도 지연되므로 배치 완료 감시가 필요하다.
+- 복구 기한은 정확히 3개월이며 물리 삭제는 이후 다음 일일 실행에서 처리한다. 통상 다음 실행까지 대기가 생기고 장애·작업 상한으로 더 지연될 수 있다. 정책 고지에는 이 차이를 반영해야 한다.
 - 복구/파기 모두 회원 행 잠금으로 직렬화한다. 만료 시각이 지나면 실제 삭제가 지연돼도 복구는 불가하다.
-- SQL·새 FK·Redis 장애 시 DB 파기 전체를 롤백하고 별도 트랜잭션으로 실패 횟수를 갱신한다. 2·4·8·16·32·최대 60분 간격으로 재시도한다.
+- SQL·새 FK·Redis 장애 시 DB 파기 전체를 롤백하고 별도 트랜잭션으로 실패 횟수를 갱신한다. 2·4·8·16·32·최대 60분 후의 처리 가능 시각을 기록하지만 실제 자동 재시도는 다음 일일 후속 작업이다.
 - 한 회원 실패가 다른 회원 처리를 막지 않는다. 동일 계정의 중복 실행은 상태 재확인 후 no-op이다.
 - 성공/실패 건수와 기한 경과 대기 건수를 Prometheus에 제공한다. 로그에는 이름·소셜 식별자·SQL 인자·예외 원문을 남기지 않는다.
+- 파기 실패/미완료는 기존 BATCH_FAILURE_WEBHOOK_URL에 실행당 한 번 집계 알림을 보낸다. 실 Discord 발송은 아직 검증하지 않았다.
+- API 즉시 파기와 배치 정기 파기는 동일 AccountErasureSql v1 소스를 각 저장소에 보관한다. 자동 공유 모듈은 아니므로 배포 전 배치의 verify-account-erasure-contract.ps1로 두 사본 일치를 검사한다.
 
 ## API 계약
 
