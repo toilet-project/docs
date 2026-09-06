@@ -18,6 +18,7 @@
 | DB · 구현안 | [회원 탈퇴·복구·파기 v1.11](database/account-withdrawal-retention-v1.11.md) | 선택 동의·3개월 복구·회원 연결 파기. 운영 미적용 |
 | 운영 · 적용 전 필수 | [회원정보 자동 파기 Runbook](operations/account-erasure-runbook.md) | MySQL·백업 복원 검증, 모니터링, 재시도·롤백 제한 |
 | 운영 · 배포 검토 | [회원 복구·파기 운영 반영 사전 검토](operations/account-erasure-production-readiness-2026-09-06.md) | R2/Redis 연결·중지 스위치·Flyway 중복 방지. 보완 전 main 병합 보류 |
+| 운영 · 배포 보완 | [복구·파기 중지 및 시크릿 전달 보완](operations/account-erasure-deployment-guards-2026-09-07.md) | 기존 Redis 재사용·전체 중지 경로·준비 배포 승인 검사. 운영 미적용 |
 | 운영 · 최신 구현 검증 | [자동 파기 배치 이관 검증](operations/account-erasure-batch-verification-2026-09-06.md) | 공공데이터 동기화 후 파기, 실패 분리·재시도, 운영 미적용 |
 | 운영 · 실제 DB 검증 | [회원 파기 MySQL 검증](operations/account-retention-native-mysql-2026-09-06.md) | 로컬 MySQL 17건 통과, 운영 버전 차이·남은 조건 |
 | 운영 · 최신 파기 검증 | [R2 암호화 파기 대장](operations/account-erasure-r2-2026-09-06.md) | 비공개 버킷·가상 데이터 왕복 확인, 로컬 구현 및 운영 전 남은 조건 |
