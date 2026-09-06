@@ -2,6 +2,8 @@
 
 상태: 로컬 구현. **운영 활성화·실제 회원 삭제는 아직 하지 않았다.**
 
+2026-09-07 후속 준비: [R2·독립 기준·백업 점검](account-erasure-r2-backup-readiness-2026-09-07.md). 실제 metadata 백업과 독립 초기 기준·키 복구 확인은 운영 전환 전 필수 조건이다.
+
 2026-09-07 연결 검증: [PR CI 전체 통과·기존 Redis 읽기 전용 검사](account-erasure-redis-readiness-2026-09-07.md). 배치 네트워크에서 AUTH/SELECT/PING은 성공했으나 새 Spring 배치의 운영 설정 적용은 미완료다. 아래 과거 검토보다 최신 진행 판단은 이 보고서를 우선한다.
 
 2026-09-07 후속: [중지 경로·배포 설정 보완](account-erasure-deployment-guards-2026-09-07.md). 기존 검토에서 발견한 코드 누락은 feature에서 보완했으나 실제 시크릿 연결·운영 승인 조건은 별도로 남아 있다.

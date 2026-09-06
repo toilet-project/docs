@@ -1,5 +1,11 @@
 # 문서 변경 이력
 
+## 2026-09-07 — R2·독립 기준·백업 준비 점검
+
+- [준비 보고서](../operations/account-erasure-r2-backup-readiness-2026-09-07.md): R2 읽기 전용 검사, 비공개 체크포인트·브랜치 보호 제한, 실제 백업 checksum/metadata/timer 점검.
+- [Redis 연결 결과](../operations/account-erasure-redis-readiness-2026-09-07.md): 기존 Redis 인증·PING 성공과 미배포 Spring 설정을 구분.
+- 운영 DDL·설정 설치·대장 초기화·백업 삭제·파기 활성화는 수행하지 않음.
+
 ## 2026-09-07 — 회원 복구·파기 배포 안전장치 보완
 
 - [보완 보고서](../operations/account-erasure-deployment-guards-2026-09-07.md): API·배치의 전체 중지 경로, 승인 없는 배포 차단, R2 시크릿의 안전한 별도 환경 파일 전달.
