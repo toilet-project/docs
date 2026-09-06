@@ -1,0 +1,27 @@
+name: Operations script safety tests
+
+on:
+  push:
+    branches: [feature/account-withdrawal-retention]
+    paths: ['operations/scripts/**', '.github/workflows/operations-script-tests.yml']
+  pull_request:
+    paths: ['operations/scripts/**', '.github/workflows/operations-script-tests.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test synthetic fixtures (no production access)
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python -m unittest discover -s operations/scripts/tests -v
+      - name: Validate shell syntax
+        run: bash -n operations/scripts/mysql-backup.sh operations/scripts/mysql-backup-retention.sh
