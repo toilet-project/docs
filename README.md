@@ -28,6 +28,7 @@
 | 운영 · Linux 격리 검증 | [백업 만료 점검 실환경 검증](operations/account-erasure-linux-retention-rehearsal-2026-09-06.md) | Linux 17건·systemd 성공/실패·Discord 테스트 1건. 운영 데이터 변경 없음 |
 | 운영 · 실패 알림 연결 | [systemd → Discord 통합 검증](operations/account-erasure-systemd-onfailure-2026-09-06.md) | 시작 전 실패 자동 알림·중복 억제 검증. 영구 운영 설치 전 |
 | 운영 · 실제 백업 검증 | [최신 운영 백업 격리 복원](operations/account-erasure-live-backup-restore-2026-09-06.md) | 16개 테이블·화장실 53,583건·외래키 불일치 0. V1.11 미적용/자동 정리 기준 미확정 |
+| 운영 · V1.11 격리 검증 | [실제 백업 DDL·가상 회원 파기 재적용](operations/account-erasure-live-v11-replay-2026-09-06.md) | DDL 호환·원본 보존·가상 2건 파기·실패 롤백·반복 실행 확인. 운영 미적용 |
 | 운영 · 복원 설계 | [백업 복원 재파기 설계](operations/account-erasure-backup-design.md) | R2 선기록·복원 차단 계약, 보관 기간·복원 통합 확인 필요 |
 | 운영 · 구현 검증 | [탈퇴·복구 검증 결과](operations/account-retention-verification-2026-09-06.md) | 로컬 SQL·인증·모바일/PC 검증, 전체 테스트 실패·미검증 사항 |
 | 운영 | [배포·운영 가이드](operations/deployment.md) | 도메인, HTTPS, 배포 및 비밀정보 원칙 |

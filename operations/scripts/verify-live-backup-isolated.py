@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Explicit structure-only rehearsal. No restore promotion, erasure replay or production writes."""
+"""Isolated backup rehearsal; optional V11/synthetic replay. Never promotes a restore or writes production."""
 import datetime as dt
 import hashlib
+import ipaddress
 import json
 import os
 from pathlib import Path
@@ -32,6 +33,7 @@ def identifier(value):
 def main():
     phase = "preflight"
     container = None
+    network = None
     volume_names = []
     errors = None
     run = uuid.uuid4().hex
@@ -44,7 +46,8 @@ def main():
     backup = None
     env = os.environ.copy()
     try:
-        if len(sys.argv) != 3:
+        replay = len(sys.argv) == 4 and sys.argv[3] == "--v11-synthetic-replay"
+        if len(sys.argv) != 3 and not replay:
             raise ValueError("explicit backup and work directory required")
         backup = Path(sys.argv[1])
         approved = Path("/home/luha/backups/geupddong/mysql")
@@ -76,6 +79,13 @@ def main():
         result.update(backupFilename=backup.name, backupSha256=actual_hash, backupBytes=original.st_size,
                       backupModifiedAt=dt.datetime.fromtimestamp(original.st_mtime, dt.timezone.utc).isoformat(),
                       captureMetadataPresent=Path(str(backup) + ".metadata.json").exists())
+        if replay:
+            for name in ("v1.11-account-withdrawal-retention.sql", "LiveBackupV11Replay.java", "lib"):
+                artifact = work / name
+                if artifact.resolve(strict=True) != artifact or artifact.is_symlink():
+                    raise ValueError("local rehearsal artifact required")
+            result.update(mode="V11_SYNTHETIC_REPLAY", ddlSha256=digest(work / "v1.11-account-withdrawal-retention.sql"),
+                          replaySourceSha256=digest(work / "LiveBackupV11Replay.java"))
 
         def command(args, timeout=60):
             return subprocess.run(args, check=True, stdout=subprocess.PIPE, stderr=errors,
@@ -88,17 +98,30 @@ def main():
         result["mysqlImageId"] = image
         env["MYSQL_ROOT_PASSWORD"] = secrets.token_hex(24)
         env["MYSQL_PWD"] = env["MYSQL_ROOT_PASSWORD"]
+        network_mode = "none"
+        mysql_options = []
+        if replay:
+            phase = "network-create"
+            network = "geupddong-backup-check-" + run
+            command(["docker", "network", "create", "--internal", "--label", "geupddong.backup.rehearsal=" + run, network])
+            net = json.loads(command(["docker", "network", "inspect", network]))[0]
+            if not net["Internal"] or net["Labels"].get("geupddong.backup.rehearsal") != run:
+                raise ValueError("network isolation failure")
+            network_mode = network
+            env["MYSQL_ROOT_HOST"] = "%"
+            mysql_options = ["--port=43317"]
         phase = "container-create"
         container = command(["docker", "run", "-d", "--pull=never", "--name", "geupddong-backup-check-" + run,
-                             "--label", "geupddong.backup.rehearsal=" + run, "--network=none", "--memory=1g", "--cpus=1",
+                             "--label", "geupddong.backup.rehearsal=" + run, "--network=" + network_mode, "--memory=1g", "--cpus=1",
+                             *(["-e", "MYSQL_ROOT_HOST"] if replay else []),
                              "-e", "MYSQL_ROOT_PASSWORD", image, "--skip-log-bin", "--event-scheduler=DISABLED",
                              "--local-infile=OFF", "--secure-file-priv=NULL", "--default-time-zone=+09:00",
-                             "--innodb-flush-log-at-trx-commit=2", "--max-allowed-packet=1073741824"], timeout=120)
+                             "--innodb-flush-log-at-trx-commit=2", "--max-allowed-packet=1073741824", *mysql_options], timeout=120)
         env.pop("MYSQL_ROOT_PASSWORD", None)
         if not re.fullmatch(r"[a-f0-9]{64}", container):
             raise ValueError("invalid container identity")
         details = json.loads(command(["docker", "inspect", container]))[0]
-        if details["Config"]["Labels"].get("geupddong.backup.rehearsal") != run or details["HostConfig"]["NetworkMode"] != "none" or details["HostConfig"].get("PortBindings"):
+        if details["Config"]["Labels"].get("geupddong.backup.rehearsal") != run or details["HostConfig"]["NetworkMode"] != network_mode or details["HostConfig"].get("PortBindings"):
             raise ValueError("isolation failure")
         if any(m["Type"] != "volume" or m["Destination"] != "/var/lib/mysql" for m in details["Mounts"]):
             raise ValueError("unexpected mount")
@@ -107,7 +130,7 @@ def main():
             raise ValueError("anonymous data volume required")
         phase = "container-ready"
         for attempt in range(60):
-            ping = subprocess.run(["docker", "exec", "-e", "MYSQL_PWD", container, "mysqladmin", "--protocol=tcp", "-h127.0.0.1", "-uroot", "ping", "--silent"],
+            ping = subprocess.run(["docker", "exec", "-e", "MYSQL_PWD", container, "mysqladmin", "--protocol=tcp", "-h127.0.0.1", "-P43317" if replay else "-P3306", "-uroot", "ping", "--silent"],
                                   env=env, stdout=subprocess.DEVNULL, stderr=errors, timeout=5)
             if ping.returncode == 0:
                 break
@@ -170,12 +193,33 @@ def main():
                       accountWithdrawalTablePresent="account_withdrawal" in tables, structureVerified=orphan_total == 0)
         if orphan_total:
             raise ValueError("foreign key orphans")
+        if replay:
+            phase = "v11-synthetic-replay"
+            details = json.loads(command(["docker", "inspect", container]))[0]
+            networks = details["NetworkSettings"]["Networks"]
+            if set(networks) != {network}:
+                raise ValueError("unexpected network attachment")
+            address = networks[network]["IPAddress"]
+            ip = ipaddress.ip_address(address)
+            if ip.version != 4 or not any(ip in ipaddress.ip_network(cidr) for cidr in ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16")):
+                raise ValueError("private bridge address required")
+            query("CREATE TABLE toilet_db.erasure_restore_guard(marker CHAR(32) PRIMARY KEY); INSERT INTO toilet_db.erasure_restore_guard VALUES ('" + run + "');")
+            env["V11_REPLAY_IP"] = address
+            env["V11_REPLAY_MARKER"] = run
+            env["V11_REPLAY_UUID"] = query("SELECT @@server_uuid;")
+            output = command(["java", "-Xmx512m", "-Duser.timezone=UTC", "-cp", str(work / "lib" / "*"),
+                              str(work / "LiveBackupV11Replay.java"), str(work / "v1.11-account-withdrawal-retention.sql")], timeout=300)
+            checked = json.loads(output)
+            if checked.get("outcome") != "V11_SYNTHETIC_REPLAY_VERIFIED" or checked.get("originalDataUnchanged") is not True:
+                raise ValueError("replay verification failure")
+            result["v11Verification"] = checked
+            result["syntheticReplayVerified"] = True
         phase = "source-preservation"
         after = backup.stat()
         if (original.st_size, original.st_mtime_ns, original.st_ino) != (after.st_size, after.st_mtime_ns, after.st_ino) or digest(backup) != actual_hash:
             raise ValueError("source changed")
         result["sourceBackupUnchanged"] = True
-        result["outcome"] = "STRUCTURE_VERIFIED_NOT_ERASURE_CLEARED"
+        result["outcome"] = "V11_SYNTHETIC_VERIFIED_NOT_ERASURE_CLEARED" if replay else "STRUCTURE_VERIFIED_NOT_ERASURE_CLEARED"
     except Exception as error:
         result.update(outcome="FAILED", failurePhase=phase,
                       failureKind="TIMEOUT" if isinstance(error, subprocess.TimeoutExpired) else "CHECK_OR_COMMAND_FAILED")
@@ -205,6 +249,17 @@ def main():
             except Exception:
                 removed = False
         result["containerRemoved"] = removed
+        if network:
+            try:
+                net = json.loads(subprocess.run(["docker", "network", "inspect", network], check=True,
+                                 stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=10).stdout)[0]
+                if net["Labels"].get("geupddong.backup.rehearsal") != run or net["Containers"]:
+                    raise ValueError("network cleanup ownership mismatch")
+                subprocess.run(["docker", "network", "rm", network], check=True, stdout=subprocess.DEVNULL, stderr=errors, timeout=30)
+                result["networkRemoved"] = True
+            except Exception:
+                result["networkRemoved"] = False
+                removed = False
         result["completedAt"] = utc()
         if not removed:
             result["outcome"] = "FAILED_CLEANUP_REVIEW_REQUIRED"
@@ -216,7 +271,7 @@ def main():
             with (work / "result.json").open("x") as out:
                 json.dump(result, out, indent=2)
             os.chmod(work / "result.json", 0o600)
-    if result.get("outcome") == "STRUCTURE_VERIFIED_NOT_ERASURE_CLEARED" and result["containerRemoved"]:
+    if result.get("outcome") in ("STRUCTURE_VERIFIED_NOT_ERASURE_CLEARED", "V11_SYNTHETIC_VERIFIED_NOT_ERASURE_CLEARED") and result["containerRemoved"]:
         print("LIVE_BACKUP_REHEARSAL_OK tables=" + str(result["tableCount"]) + " toilets=" + str(result["rowCounts"]["toilet"]) + " foreignKeyOrphans=0 containerRemoved=true retentionEligible=false")
         return 0
     return 1
