@@ -1,5 +1,11 @@
 # 문서 변경 이력
 
+## 2026-09-06 — 독립 체크포인트 및 백업 만료 점검
+
+- [구현·운영 전 조건](../operations/account-erasure-checkpoints-retention-v1.md): 비공개 집계 체크포인트 저장소, 해시 연결/허용 필드/기존 기록 검사, 기본 dry-run 만료 점검과 명시 승인 기반 파일 정리.
+- Discord 가상 전송 검증, 중복 억제·복구 알림. 운영 스케줄/실제 전송은 미활성이고 wrapper/JVM 실패 감시는 별도 필요.
+- 운영 기준값·원문·비밀키 업로드, 실제 백업/DB/R2 삭제, 서버 설치 및 기능 활성화 없음.
+
 ## 2026-09-06 — 파기 사전 목록 및 백업 캡처 메타데이터
 
 - [구현·검증 보고서](../operations/account-erasure-catalogue-backup-metadata-v1.md): 별도 catalogue-v1 선기록, 목록 입력 생성 CLI, 신규 백업 캡처 시각/DB 식별 metadata와 진단 연결.

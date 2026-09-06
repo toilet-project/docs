@@ -1,0 +1,11 @@
+[Unit]
+Description=Inspect backup retention independently of backup success
+
+[Timer]
+OnCalendar=*-*-* 04:15:00 Asia/Seoul
+Persistent=true
+RandomizedDelaySec=60
+Unit=geupddong-backup-retention.service
+
+[Install]
+WantedBy=timers.target
