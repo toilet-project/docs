@@ -1,5 +1,11 @@
 # 문서 변경 이력
 
+## 2026-09-06 — systemd 실패 알림 Discord 자동 연결
+
+- [연결·검증 보고서](../operations/account-erasure-systemd-onfailure-2026-09-06.md): 점검 OnFailure → 독립 Python handler, JVM 기동 전 실패 전달, 상태 코드 전용 메시지와 6시간 중복 억제.
+- 실제 Linux 17건 통과. 임시 서비스 시작 전 실패로 Discord 테스트 1건 전송 및 반복 실패 추가 전송 억제 확인.
+- 운영 데이터·영구 서비스 설치·자동 파기 활성화 없음. 타이머 미실행/장비 자체 장애 감시와 실제 백업 복원·초기 기준값 확정은 별도 단계다.
+
 ## 2026-09-06 — 백업 만료 점검 Linux 격리 검증
 
 - [실환경 검증 보고서](../operations/account-erasure-linux-retention-rehearsal-2026-09-06.md): 실제 Linux 권한/flock·가상 파일 17건, systemd 임시 서비스 정상/실패 판정, 승인된 Discord 테스트 1건의 HTTP 2xx 응답.

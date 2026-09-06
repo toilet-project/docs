@@ -2,13 +2,14 @@
 Description=Geupddong backup retention inspection (read-only)
 After=network-online.target
 Wants=network-online.target
+OnFailure=geupddong-retention-failure.service
 
 [Service]
 Type=oneshot
 User=luha
 UMask=0077
 EnvironmentFile=/home/luha/.config/geupddong/backup-retention.env
-ExecStart=/home/luha/.local/bin/mysql-backup-retention.sh --dry-run
+ExecStart=/usr/bin/env GEUPDDONG_RETENTION_NOTIFICATIONS_ENABLED=false /home/luha/.local/bin/mysql-backup-retention.sh --dry-run
 TimeoutStartSec=30min
 NoNewPrivileges=true
 PrivateTmp=true
@@ -17,3 +18,4 @@ ProtectHome=read-only
 ReadWritePaths=/home/luha/backups/geupddong/mysql /home/luha/.local/state/geupddong-backup-retention
 
 # Exit 2 means expired/blocked items need attention. Do not hide it as a successful check.
+# This scheduled unit uses only OnFailure delivery to avoid duplicate JVM + systemd notices.
