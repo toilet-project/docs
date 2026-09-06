@@ -30,6 +30,36 @@ def identifier(value):
     return "`" + value + "`"
 
 
+def verify_metadata(backup, expected_epoch, expected_server_uuid):
+    path = Path(str(backup) + ".metadata.json")
+    if path.is_symlink() or not path.is_file() or path.stat().st_size > 8192:
+        raise ValueError("metadata required")
+    raw = path.read_bytes()
+    data = json.loads(raw)
+    fields = {"version", "filename", "sha256", "bytes", "captureStartedAt", "captureCompletedAt",
+              "database", "serverUuid", "databaseEpoch"}
+    if not isinstance(data, dict) or set(data) != fields or type(data["version"]) is not int or data["version"] != 1:
+        raise ValueError("metadata shape")
+    for value in (expected_epoch, expected_server_uuid):
+        if not isinstance(value, str) or not re.fullmatch(r"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}", value):
+            raise ValueError("independently supplied identity required")
+    if (data["filename"] != backup.name or data["database"] != "toilet_db"
+            or data["databaseEpoch"] != expected_epoch or data["serverUuid"] != expected_server_uuid
+            or type(data["bytes"]) is not int or data["bytes"] != backup.stat().st_size
+            or data["sha256"] != digest(backup)):
+        raise ValueError("metadata mismatch")
+    times = []
+    for name in ("captureStartedAt", "captureCompletedAt"):
+        value = data[name]
+        if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", value):
+            raise ValueError("invalid capture time")
+        times.append(dt.datetime.fromisoformat(value.replace("Z", "+00:00")))
+    if times[0] > times[1] or times[1] > dt.datetime.now(dt.timezone.utc):
+        raise ValueError("capture time order")
+    return {"metadataSha256": hashlib.sha256(raw).hexdigest(), "captureMetadataVerified": True,
+            "captureStartedAt": data["captureStartedAt"], "captureCompletedAt": data["captureCompletedAt"]}
+
+
 def main():
     phase = "preflight"
     container = None
@@ -79,6 +109,10 @@ def main():
         result.update(backupFilename=backup.name, backupSha256=actual_hash, backupBytes=original.st_size,
                       backupModifiedAt=dt.datetime.fromtimestamp(original.st_mtime, dt.timezone.utc).isoformat(),
                       captureMetadataPresent=Path(str(backup) + ".metadata.json").exists())
+        if result["captureMetadataPresent"] or env.get("REHEARSAL_METADATA_REQUIRED") == "true":
+            phase = "capture-metadata"
+            result.update(verify_metadata(backup, env.get("REHEARSAL_EXPECTED_EPOCH"),
+                                          env.get("REHEARSAL_EXPECTED_SERVER_UUID")))
         if replay:
             for name in ("v1.11-account-withdrawal-retention.sql", "LiveBackupV11Replay.java", "lib"):
                 artifact = work / name
@@ -219,6 +253,10 @@ def main():
         if (original.st_size, original.st_mtime_ns, original.st_ino) != (after.st_size, after.st_mtime_ns, after.st_ino) or digest(backup) != actual_hash:
             raise ValueError("source changed")
         result["sourceBackupUnchanged"] = True
+        if result.get("captureMetadataVerified"):
+            if digest(Path(str(backup) + ".metadata.json")) != result["metadataSha256"]:
+                raise ValueError("source metadata changed")
+            result["sourceMetadataUnchanged"] = True
         result["outcome"] = "V11_SYNTHETIC_VERIFIED_NOT_ERASURE_CLEARED" if replay else "STRUCTURE_VERIFIED_NOT_ERASURE_CLEARED"
     except Exception as error:
         result.update(outcome="FAILED", failurePhase=phase,

@@ -1,5 +1,11 @@
 # 문서 변경 이력
 
+## 2026-09-07 — 신규 메타데이터 백업 및 격리 복원
+
+- [검증 보고서](../operations/account-erasure-metadata-backup-rehearsal-2026-09-07.md): 암호화 백업 1건 생성, metadata 대조, 격리 MySQL V11/가상 파기/원본 보존 검증 통과.
+- Python 보호 검사 3건·Java 백업 관련 7건 통과. DB 비밀번호 명령 인자 전달 제거.
+- 신규 백업 보존, 임시 DB/네트워크/도구 정리. 기존 백업·설치 스크립트·운영 DB·timer 변경 없음.
+
 ## 2026-09-07 — R2·독립 기준·백업 준비 점검
 
 - [준비 보고서](../operations/account-erasure-r2-backup-readiness-2026-09-07.md): R2 읽기 전용 검사, 비공개 체크포인트·브랜치 보호 제한, 실제 백업 checksum/metadata/timer 점검.

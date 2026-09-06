@@ -37,9 +37,11 @@ flock -n 9
 db_user="$(read_env SPRING_DB_USERNAME)"
 db_password="$(read_env SPRING_DB_PASSWORD)"
 [[ -n "$db_user" && -n "$db_password" ]]
+export MYSQL_PWD="$db_password"
+unset db_password
 
 phase=database-identity
-server_uuid="$(docker exec -e MYSQL_PWD="$db_password" "$container" mysql --protocol=socket -u "$db_user" -N -B -e 'SELECT @@server_uuid' 2>/dev/null)"
+server_uuid="$(docker exec -e MYSQL_PWD "$container" mysql --protocol=socket -u "$db_user" -N -B -e 'SELECT @@server_uuid' 2>/dev/null)"
 [[ "$server_uuid" =~ ^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$ ]]
 started="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 timestamp="$(date -u '+%Y%m%d-%H%M%S')"
@@ -49,7 +51,7 @@ target="$backup_dir/$filename"
 temporary_dir="$(mktemp -d "$backup_dir/.capture.XXXXXXXX")"
 phase=encrypted-capture
 
-docker exec -e MYSQL_PWD="$db_password" "$container" \
+docker exec -e MYSQL_PWD "$container" \
   mysqldump --protocol=socket -u "$db_user" --single-transaction --quick \
   --no-tablespaces --skip-extended-insert --routines --triggers --events --databases "$database" 2>/dev/null \
   | gzip -9 \
@@ -57,7 +59,7 @@ docker exec -e MYSQL_PWD="$db_password" "$container" \
 completed="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 [[ "$completed" == "$started" || "$completed" > "$started" ]]
 phase=metadata
-after_uuid="$(docker exec -e MYSQL_PWD="$db_password" "$container" mysql --protocol=socket -u "$db_user" -N -B -e 'SELECT @@server_uuid' 2>/dev/null)"
+after_uuid="$(docker exec -e MYSQL_PWD "$container" mysql --protocol=socket -u "$db_user" -N -B -e 'SELECT @@server_uuid' 2>/dev/null)"
 [[ "$after_uuid" == "$server_uuid" ]]
 digest="$(sha256sum "$temporary_dir/dump")"; digest="${digest%% *}"
 bytes="$(stat -c '%s' "$temporary_dir/dump")"
