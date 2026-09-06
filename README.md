@@ -21,6 +21,7 @@
 | 운영 · 실제 DB 검증 | [회원 파기 MySQL 검증](operations/account-retention-native-mysql-2026-09-06.md) | 로컬 MySQL 17건 통과, 운영 버전 차이·남은 조건 |
 | 운영 · 최신 파기 검증 | [R2 암호화 파기 대장](operations/account-erasure-r2-2026-09-06.md) | 비공개 버킷·가상 데이터 왕복 확인, 로컬 구현 및 운영 전 남은 조건 |
 | 운영 · 복원 통합 | [암호화 백업·회원 재파기 리허설](operations/account-erasure-restore-rehearsal-2026-09-06.md) | 복원 wrapper·격리 MySQL·운영 백업 보관 기간 점검 |
+| 운영 · 보관 정책안 | [백업·로그·파기 대장 정리 v1](operations/account-erasure-retention-policy-v1.md) | 삭제 확인 후 32일 검토·사본 증빙·dry-run 판정. 자동 정리 미연결 |
 | 운영 · 복원 설계 | [백업 복원 재파기 설계](operations/account-erasure-backup-design.md) | R2 선기록·복원 차단 계약, 보관 기간·복원 통합 확인 필요 |
 | 운영 · 구현 검증 | [탈퇴·복구 검증 결과](operations/account-retention-verification-2026-09-06.md) | 로컬 SQL·인증·모바일/PC 검증, 전체 테스트 실패·미검증 사항 |
 | 운영 | [배포·운영 가이드](operations/deployment.md) | 도메인, HTTPS, 배포 및 비밀정보 원칙 |
