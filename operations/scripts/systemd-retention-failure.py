@@ -45,7 +45,9 @@ def fingerprint(event):
 
 def payload(event, test=False):
     label = "장애 알림 연결 테스트 · 실제 장애 아님" if test else "백업 만료 점검 실패"
-    if not test and event["code"] == "exited" and event["status"] == "2":
+    if not test and event["unit"] == "geupddong-mysql-backup.service":
+        label = "MySQL 백업 실패"
+    if not test and event["unit"] == "geupddong-backup-retention.service" and event["code"] == "exited" and event["status"] == "2":
         label = "백업 만료 점검 확인 필요"
     return {"content": f"[급똥] {label}\n작업: {event['unit']}\n"
                        f"결과: {event['result']} · {event['code']}/{event['status']}\n"

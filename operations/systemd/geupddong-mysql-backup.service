@@ -2,11 +2,14 @@
 Description=Geupddong encrypted MySQL backup
 After=snap.docker.dockerd.service
 Requires=snap.docker.dockerd.service
+OnFailure=geupddong-backup-failure.service
 
 [Service]
 Type=oneshot
 User=luha
 Group=luha
+UMask=0077
+EnvironmentFile=/home/luha/.config/geupddong/database-epoch.env
 ExecStart=/home/luha/.local/bin/mysql-backup.sh
 StandardOutput=append:/home/luha/backups/geupddong/backup.log
 StandardError=append:/home/luha/backups/geupddong/backup.log

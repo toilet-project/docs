@@ -1,5 +1,11 @@
 # 문서 변경 이력
 
+## 2026-09-07 — 독립 초기 기준·정기 백업 전환
+
+- [전환 결과](../operations/account-erasure-backup-transition-2026-09-07.md): 검토한 0건 초기 기준을 비공개 저장소에 기록하고 CI 통과.
+- 매일 03:15 metadata 백업, 04:15 삭제 없는 점검·실패 알림 설치. 기존 자동 만료 삭제는 승인 후 중지.
+- 첫 HOLD_LEGACY_METADATA 확인 및 Discord 알림 성공. 기존 백업 보존·회원 자동 파기는 계속 비활성.
+
 ## 2026-09-07 — 신규 메타데이터 백업 및 격리 복원
 
 - [검증 보고서](../operations/account-erasure-metadata-backup-rehearsal-2026-09-07.md): 암호화 백업 1건 생성, metadata 대조, 격리 MySQL V11/가상 파기/원본 보존 검증 통과.

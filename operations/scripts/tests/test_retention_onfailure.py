@@ -21,6 +21,11 @@ def environment():
 
 
 class PolicyTests(unittest.TestCase):
+    def test_backup_failure_has_distinct_label(self):
+        env = {**environment(), "MONITOR_UNIT": "geupddong-mysql-backup.service",
+               "GEUPDDONG_FAILURE_EXPECTED_UNIT": "geupddong-mysql-backup.service", "MONITOR_EXIT_STATUS": "2"}
+        self.assertIn("MySQL 백업 실패", notice.payload(notice.event_from(env))["content"])
+
     def test_valid_failure_is_aggregate_only(self):
         event = notice.event_from(environment())
         body = notice.payload(event)
