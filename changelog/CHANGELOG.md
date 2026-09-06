@@ -1,5 +1,12 @@
 # 문서 변경 이력
 
+## 2026-09-06 — 파기 사전 목록 및 백업 캡처 메타데이터
+
+- [구현·검증 보고서](../operations/account-erasure-catalogue-backup-metadata-v1.md): 별도 catalogue-v1 선기록, 목록 입력 생성 CLI, 신규 백업 캡처 시각/DB 식별 metadata와 진단 연결.
+- 목록 기능 기본 false. 같은 버킷의 두 경로라는 한계와 독립 기준 건수/해시 보존 조건을 명시했다.
+- 새 백업 스크립트의 묵시적 만료 삭제를 분리했다. 독립 정리 도구 없이 운영 설치하면 안 되며, 미니 PC 설치본은 변경하지 않았다.
+- 신규 12건 통과. 배치 142 통과/4 건너뜀, API 관련 27 통과/1 건너뜀. 가상 쉘 시험과 실제 운영/Linux 검증을 구분했다.
+
 ## 2026-09-06 — 삭제 완료 증빙·백업 목록 진단 도구
 
 - [증빙 대조 절차](../operations/account-erasure-evidence-reconciliation-v1.md): SQL 트랜잭션과 분리된 계정 부재 재조회 → R2 completion-v1 암호화 최초 기록/재시도, 독립 목록 전체 해시 대조, 백업 checksum 진단 CLI 구현.
