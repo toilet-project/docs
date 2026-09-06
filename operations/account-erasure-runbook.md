@@ -2,6 +2,8 @@
 
 상태: 로컬 구현. **운영 활성화·실제 회원 삭제는 아직 하지 않았다.**
 
+2026-09-07 연결 검증: [PR CI 전체 통과·기존 Redis 읽기 전용 검사](account-erasure-redis-readiness-2026-09-07.md). 배치 네트워크에서 AUTH/SELECT/PING은 성공했으나 새 Spring 배치의 운영 설정 적용은 미완료다. 아래 과거 검토보다 최신 진행 판단은 이 보고서를 우선한다.
+
 2026-09-07 후속: [중지 경로·배포 설정 보완](account-erasure-deployment-guards-2026-09-07.md). 기존 검토에서 발견한 코드 누락은 feature에서 보완했으나 실제 시크릿 연결·운영 승인 조건은 별도로 남아 있다.
 
 최신 판단: [운영 반영 사전 검토](account-erasure-production-readiness-2026-09-06.md). 격리 V1.11/가상 파기는 통과했으나 R2·Redis 배포 연결, 기능 중지 범위, Flyway 단일 적용 경로 보완이 필요해 main 병합/활성화는 보류한다. 아래 과거 단계의 미완료 표시는 최신 보고서와 함께 읽는다.
@@ -42,7 +44,7 @@ WHERE u.status='WITHDRAWN' AND w.user_id IS NULL;
 1. 쓰기 점검 창을 확보하고 운영 DB 복구 가능한 백업을 확인한다.
 2. 격리 MySQL에서 [DDL](../database/ddl/v1.11-account-withdrawal-retention.sql)과 현재 전체 회원 FK를 검증한다. MySQL DDL은 일반 데이터 트랜잭션처럼 전체 롤백되지 않는다.
 3. 현재 운영은 Flyway V10까지 적용되어 V11이 새 API 기동 시 실행 대상이다. 승인안은 Flyway 한 경로로 통일하며 수동 DDL을 먼저 실행하지 않는다. 수동 방식을 원하면 이력 일치 전략부터 별도 검토한다. 중복 적용·체크섬 임의 수정 금지.
-4. 기능 OFF가 사용자 영향 없는 준비 배포인 것은 아니다. 현재 API는 OFF에서 기존 탈퇴도 503으로 차단하고, 기존 복구/기한 경과 OAuth 파기 전체를 차단하는 스위치도 아니다. [사전 검토](account-erasure-production-readiness-2026-09-06.md)의 중지 범위·전환 안내를 보완한 후 승인된 설정으로 배포한다. API에는 정기 파기 스케줄러가 없으며 auth_version=0인 기존 JWT는 호환한다.
+4. 기능 OFF가 사용자 영향 없는 준비 배포인 것은 아니다. feature의 `ACCOUNT_LIFECYCLE_MAINTENANCE=true`는 기존 탈퇴도 503으로 차단하고 복구·기한 경과 OAuth·직접 파기 진입을 차단한다. 프로세스 시작 시 적용되는 설정이며 진행 중인 작업의 즉시 취소나 분산 잠금은 아니다. [안전장치 보완](account-erasure-deployment-guards-2026-09-07.md)에 따라 점검 안내와 모든 작성자 중지/재기동 절차를 승인한 뒤 배포한다. API에는 정기 파기 스케줄러가 없으며 auth_version=0인 기존 JWT는 호환한다.
 5. mock UI 검증과 테스트 계정으로 실제 OAuth 인증·선택 동의·복구·권한 경계를 검증한다. 정상 사용자 계정을 실험용으로 삭제하지 않는다.
 6. 정책/웹을 함께 반영하고 백업·모니터링 준비가 확인된 뒤 두 스위치를 활성화한다. 현재 배치 배포 스크립트는 ACCOUNT_ERASURE_ENABLED=false로 고정했으므로 검증 후 별도 변경 승인이 필요하다. API에만 enabled=true를 설정해서 정기 파기가 된다고 판단하지 않는다.
 7. 기한을 짧게 조정한 **격리 테스트 DB**에서 자동 파기를 확인한다. 운영 회원의 기한을 테스트 목적으로 변경하지 않는다.
