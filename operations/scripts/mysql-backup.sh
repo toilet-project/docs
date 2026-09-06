@@ -31,7 +31,8 @@ install -d -m 700 "$backup_dir"
 [[ ! -L "$backup_dir" && "$(realpath "$backup_dir")" == "$backup_dir" ]]
 # Serializes this script only, not all restore/erasure writers.
 [[ ! -L "$backup_dir/.backup.lock" ]]
-exec 9>"$backup_dir/.backup.lock"
+[[ ! -e "$backup_dir/.backup.lock" || ( -f "$backup_dir/.backup.lock" && ! -s "$backup_dir/.backup.lock" ) ]]
+exec 9>>"$backup_dir/.backup.lock"
 flock -n 9
 db_user="$(read_env SPRING_DB_USERNAME)"
 db_password="$(read_env SPRING_DB_PASSWORD)"

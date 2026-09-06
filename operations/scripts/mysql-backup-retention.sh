@@ -11,7 +11,9 @@ tool_dir="${GEUPDDONG_ERASURE_TOOL_DIR:-/home/luha/erasure-tools}"
 install -d -m 700 "$state_dir"
 [[ "$(realpath "$state_dir")" == "$state_dir" && "$state_dir" != "$backup_dir" && "$state_dir" != "$backup_dir/"* ]]
 [[ ! -L "$backup_dir/.backup.lock" && -d "$tool_dir/lib" ]]
-exec 9>"$backup_dir/.backup.lock"
+[[ ! -e "$backup_dir/.backup.lock" || ( -f "$backup_dir/.backup.lock" && ! -s "$backup_dir/.backup.lock" ) ]]
+# Do not truncate an unexpected existing lock file before obtaining the lock.
+exec 9>>"$backup_dir/.backup.lock"
 # Same flock as capture, independent of whether the latest capture succeeded.
 flock -n 9 || { printf 'BACKUP_RETENTION_LOCK_BUSY\n' >&2; exit 1; }
 export GEUPDDONG_BACKUP_DIR="$backup_dir"

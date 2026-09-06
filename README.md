@@ -25,6 +25,7 @@
 | 운영 · 완료 증빙 | [R2 완료 증빙·백업 목록 대조](operations/account-erasure-evidence-reconciliation-v1.md) | 커밋 후 부재 재조회·조건부 증빙·목록 무결성 검사. 운영 미적용 |
 | 운영 · 목록/백업 구현 | [파기 사전 목록·백업 캡처 기록](operations/account-erasure-catalogue-backup-metadata-v1.md) | 별도 선기록·목록 생성·캡처 메타데이터. 운영 설치 전 조건 포함 |
 | 운영 · 독립 기준/만료 점검 | [체크포인트·백업 만료 점검](operations/account-erasure-checkpoints-retention-v1.md) | 비공개 집계 저장소·승인 계획 기반 정리·알림 구현. 운영 미설치 |
+| 운영 · Linux 격리 검증 | [백업 만료 점검 실환경 검증](operations/account-erasure-linux-retention-rehearsal-2026-09-06.md) | Linux 17건·systemd 성공/실패·Discord 테스트 1건. 운영 데이터 변경 없음 |
 | 운영 · 복원 설계 | [백업 복원 재파기 설계](operations/account-erasure-backup-design.md) | R2 선기록·복원 차단 계약, 보관 기간·복원 통합 확인 필요 |
 | 운영 · 구현 검증 | [탈퇴·복구 검증 결과](operations/account-retention-verification-2026-09-06.md) | 로컬 SQL·인증·모바일/PC 검증, 전체 테스트 실패·미검증 사항 |
 | 운영 | [배포·운영 가이드](operations/deployment.md) | 도메인, HTTPS, 배포 및 비밀정보 원칙 |

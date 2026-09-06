@@ -1,5 +1,11 @@
 # 문서 변경 이력
 
+## 2026-09-06 — 백업 만료 점검 Linux 격리 검증
+
+- [실환경 검증 보고서](../operations/account-erasure-linux-retention-rehearsal-2026-09-06.md): 실제 Linux 권한/flock·가상 파일 17건, systemd 임시 서비스 정상/실패 판정, 승인된 Discord 테스트 1건의 HTTP 2xx 응답.
+- 잠금 파일을 열 때 비정상 내용이 지워지거나 FIFO에서 대기하지 않도록 백업 캡처/만료 wrapper를 보완했다.
+- 운영 백업/DB/R2 변경, 영구 서비스 설치, 타이머/파기 활성화 없음. 독립 실패 감시 연결·실제 백업 복원·기준값 확립은 남아 있다.
+
 ## 2026-09-06 — 독립 체크포인트 및 백업 만료 점검
 
 - [구현·운영 전 조건](../operations/account-erasure-checkpoints-retention-v1.md): 비공개 집계 체크포인트 저장소, 해시 연결/허용 필드/기존 기록 검사, 기본 dry-run 만료 점검과 명시 승인 기반 파일 정리.
