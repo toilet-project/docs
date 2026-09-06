@@ -8,6 +8,8 @@
 
 ## 최신 작업 요약
 
+계정 복구·파기는 **API·batch·V11·Redis 준비 배포 완료 / 자동 파기 OFF** 상태입니다. [WBS 통합 안내와 흐름도](operations/account-lifecycle-wbs-2026-09-07.md)에서 현재 운영 구조, 백업·복원 일정, 파기 검증 순서, 완료/미완료 항목을 확인하세요. 이전 일자 보고서는 당시 상태를 기록한 것입니다.
+
 행정구역 정규화는 설계 → 표본 검증 → 전수 분석 → 운영 적재 → 관리자 검토 → 실제 제보 승인·자동 재판정까지 확인했습니다. 다음 정기 배치의 확정 좌표·주소 보호 확인은 남아 있습니다. [관리자 검토 배포 보고서](operations/region-admin-review-release-2026-09-05.md)에서 최신 결과를 확인할 수 있습니다. 과거 보고서는 당시 시점의 기록이며, 상세 JSON·시설별 검토 목록은 비공개로 보존합니다.
 
 ## 문서 목록
@@ -15,6 +17,30 @@
 | 구분 | 문서 | 설명 |
 | --- | --- | --- |
 | 아키텍처 | [아키텍처 v3.0](architecture/architecture-v3.md) | Cloudflare·Mini PC·인증·배치까지 반영한 현재 운영 구조 |
+| 운영 · WBS 최신 | [계정 복구·파기 통합 흐름도](operations/account-lifecycle-wbs-2026-09-07.md) | 현재 구조·정기 보호 흐름·파기 gate·기능별 진행 상태 |
+| DB · 준비 배포 | [회원 탈퇴·복구·파기 v1.11](database/account-withdrawal-retention-v1.11.md) | V11 운영 적용. 탈퇴·복구 점검 및 자동 파기 OFF |
+| 운영 · 적용 전 필수 | [회원정보 자동 파기 Runbook](operations/account-erasure-runbook.md) | MySQL·백업 복원 검증, 모니터링, 재시도·롤백 제한 |
+| 운영 · 배포 검토 | [회원 복구·파기 운영 반영 사전 검토](operations/account-erasure-production-readiness-2026-09-06.md) | R2/Redis 연결·중지 스위치·Flyway 중복 방지. 보완 전 main 병합 보류 |
+| 운영 · 배포 보완 | [복구·파기 중지 및 시크릿 전달 보완](operations/account-erasure-deployment-guards-2026-09-07.md) | 기존 Redis 재사용·전체 중지 경로·준비 배포 승인 검사. 운영 미적용 |
+| 운영 · 연결 검증 | [PR CI 및 기존 Redis 연결 확인](operations/account-erasure-redis-readiness-2026-09-07.md) | API·배치 CI 통과, 배치 네트워크 AUTH/PING 성공. 운영 앱 설정·R2 준비는 별도 |
+| 운영 · R2/백업 준비 | [R2·독립 기준·백업 준비 점검](operations/account-erasure-r2-backup-readiness-2026-09-07.md) | 읽기 전용 검사, 초기 기준·metadata 백업·비공개 보호 제한 확인 |
+| 운영 · 신규 백업 검증 | [메타데이터 백업·격리 복원](operations/account-erasure-metadata-backup-rehearsal-2026-09-07.md) | 신규 백업 1건·V11 가상 파기 통과, 기존 운영 보존. 정기 설치는 별도 |
+| 운영 · 백업 전환 | [독립 초기 기준·정기 metadata 백업](operations/account-erasure-backup-transition-2026-09-07.md) | 초기 기준 등록·03:15 백업/04:15 dry-run 설치·Discord 확인. 회원 파기는 미활성 |
+| 운영 · 기존 백업 검토 | [첫 정기 실행·legacy 백업 정리안](operations/account-erasure-legacy-backup-plan-2026-09-07.md) | 11개 체크섬 확인·10개 metadata 없음·삭제 없이 보존/검토 |
+| 운영 · 최신 구현 검증 | [자동 파기 배치 이관 검증](operations/account-erasure-batch-verification-2026-09-06.md) | 공공데이터 동기화 후 파기, 실패 분리·재시도, 운영 미적용 |
+| 운영 · 실제 DB 검증 | [회원 파기 MySQL 검증](operations/account-retention-native-mysql-2026-09-06.md) | 로컬 MySQL 17건 통과, 운영 버전 차이·남은 조건 |
+| 운영 · 최신 파기 검증 | [R2 암호화 파기 대장](operations/account-erasure-r2-2026-09-06.md) | 비공개 버킷·가상 데이터 왕복 확인, 로컬 구현 및 운영 전 남은 조건 |
+| 운영 · 복원 통합 | [암호화 백업·회원 재파기 리허설](operations/account-erasure-restore-rehearsal-2026-09-06.md) | 복원 wrapper·격리 MySQL·운영 백업 보관 기간 점검 |
+| 운영 · 보관 정책안 | [백업·로그·파기 대장 정리 v1](operations/account-erasure-retention-policy-v1.md) | 삭제 확인 후 32일 검토·사본 증빙·dry-run 판정. 자동 정리 미연결 |
+| 운영 · 완료 증빙 | [R2 완료 증빙·백업 목록 대조](operations/account-erasure-evidence-reconciliation-v1.md) | 커밋 후 부재 재조회·조건부 증빙·목록 무결성 검사. 운영 미적용 |
+| 운영 · 목록/백업 구현 | [파기 사전 목록·백업 캡처 기록](operations/account-erasure-catalogue-backup-metadata-v1.md) | 별도 선기록·목록 생성·캡처 메타데이터. 운영 설치 전 조건 포함 |
+| 운영 · 독립 기준/만료 점검 | [체크포인트·백업 만료 점검](operations/account-erasure-checkpoints-retention-v1.md) | 비공개 집계 저장소·승인 계획 기반 정리·알림 구현. 운영 미설치 |
+| 운영 · Linux 격리 검증 | [백업 만료 점검 실환경 검증](operations/account-erasure-linux-retention-rehearsal-2026-09-06.md) | Linux 17건·systemd 성공/실패·Discord 테스트 1건. 운영 데이터 변경 없음 |
+| 운영 · 실패 알림 연결 | [systemd → Discord 통합 검증](operations/account-erasure-systemd-onfailure-2026-09-06.md) | 시작 전 실패 자동 알림·중복 억제 검증. 영구 운영 설치 전 |
+| 운영 · 실제 백업 검증 | [최신 운영 백업 격리 복원](operations/account-erasure-live-backup-restore-2026-09-06.md) | 16개 테이블·화장실 53,583건·외래키 불일치 0. V1.11 미적용/자동 정리 기준 미확정 |
+| 운영 · V1.11 격리 검증 | [실제 백업 DDL·가상 회원 파기 재적용](operations/account-erasure-live-v11-replay-2026-09-06.md) | DDL 호환·원본 보존·가상 2건 파기·실패 롤백·반복 실행 확인. 운영 미적용 |
+| 운영 · 복원 설계 | [백업 복원 재파기 설계](operations/account-erasure-backup-design.md) | R2 선기록·복원 차단 계약, 보관 기간·복원 통합 확인 필요 |
+| 운영 · 구현 검증 | [탈퇴·복구 검증 결과](operations/account-retention-verification-2026-09-06.md) | 로컬 SQL·인증·모바일/PC 검증, 전체 테스트 실패·미검증 사항 |
 | 운영 | [배포·운영 가이드](operations/deployment.md) | 도메인, HTTPS, 배포 및 비밀정보 원칙 |
 | 운영 | [운영 안정화 Runbook v1.1](operations/reliability-runbook.md) | 암호화 백업·복구, 재부팅 자동 점검, DB·OAuth 장애 알림 절차 |
 | 운영 | [DB 백업·복구 리허설](operations/backup-restore-rehearsal-2026-08-31.md) | 실제 운영 백업과 임시 복구 검증 결과 |

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="850" viewBox="0 0 1120 850" role="img" aria-labelledby="t d">
+<title id="t">활성화 후 회원 파기를 허용하는 검증 순서</title><desc id="d">현재 비활성인 파기 서비스의 실행 순서. 대상 행과 기한 확인, DB 잠금, 독립 기준과 R2 대조, R2 선기록 및 읽기 확인, GitHub 기준 반영 뒤 Redis 정리와 DB 파기를 수행한다. 검증이나 삭제가 실패하면 성공으로 처리하지 않고 재시도한다.</desc>
+<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8" fill="#39825e"/></marker><style>text{font-family:'Malgun Gothic',Arial,sans-serif;fill:#183b2b}.title{font-size:30px;font-weight:700}.sub{font-size:18px;fill:#52685c}.head{font-size:22px;font-weight:700}.body{font-size:18px}.note{font-size:17px;fill:#52685c}.box{fill:#f4f9f6;stroke:#9bc2aa;stroke-width:1.5}.edge{fill:none;stroke:#39825e;stroke-width:2;marker-end:url(#a)}</style></defs>
+<rect width="1120" height="850" fill="#fff"/><text x="40" y="52" class="title">회원 파기 — 삭제보다 검증이 먼저</text><text x="40" y="85" class="sub">구현·준비 배포 완료 / 현재 OFF · 아래는 별도 활성화 승인 후의 흐름</text>
+<rect x="40" y="122" width="640" height="72" rx="12" class="box"/><text x="62" y="152" class="head">1. 기능 gate + 회원 행 잠금 + 파기 기한 확인</text><text x="62" y="180" class="note">API 직접 요청 / 02:00 동기화 이후 batch · 현재 gate에서 중단</text>
+<path d="M360 194V221" class="edge"/>
+<rect x="40" y="230" width="640" height="72" rx="12" class="box"/><text x="62" y="260" class="head">2. DB advisory lock → 독립 기준과 R2 목록 대조</text><text x="62" y="288" class="note">realm · 복원 세대 · 건수 · 구성원 hash · 현재 의도만 재시도 허용</text>
+<path d="M360 302V329" class="edge"/>
+<rect x="40" y="338" width="640" height="72" rx="12" class="box"/><text x="62" y="368" class="head">3. R2 암호화 의도 선기록 → 다시 읽어 확인</text><text x="62" y="396" class="note">원본 DB를 지우기 전에 복원 후 재사용 방지 기준부터 확보</text>
+<path d="M360 410V437" class="edge"/>
+<rect x="40" y="446" width="640" height="72" rx="12" class="box"/><text x="62" y="476" class="head">4. GitHub 체크포인트 추가 · CAS · 읽기 확인</text><text x="62" y="504" class="note">건수 / hash / 세대만 기록 · 회원 목록 없음 · force=false</text>
+<path d="M360 518V545" class="edge"/>
+<rect x="40" y="554" width="640" height="72" rx="12" class="box"/><text x="62" y="584" class="head">5. Redis refresh 세션 · 복구 인증 정리</text><text x="62" y="612" class="note">Redis 실패 시 DB 회원 파기로 진행하지 않음</text>
+<path d="M360 626V653" class="edge"/>
+<rect x="40" y="662" width="640" height="72" rx="12" class="box"/><text x="62" y="692" class="head">6. MySQL 회원·연결 정보 파기 트랜잭션</text><text x="62" y="720" class="note">제보로 반영한 화장실 정보 유지 · SQL 실패 시 DB 롤백</text>
+<rect x="740" y="230" width="340" height="290" rx="15" fill="#fff8eb" stroke="#d5af74"/><text x="765" y="271" class="head">어느 검증이든 실패하면</text><text x="765" y="317" class="body">삭제 성공으로 처리하지 않음</text><text x="765" y="357" class="body">누락된 기준을 0건으로 재생성 금지</text><text x="765" y="397" class="body">실패 기록 · 재시도 / 수동 검토</text><text x="765" y="447" class="note">이미 남은 R2 의도는 보존</text><text x="765" y="478" class="note">같은 요청의 재시도로 복구</text>
+<rect x="740" y="554" width="340" height="180" rx="15" fill="#f5f6f8" stroke="#d8dfe4"/><text x="765" y="595" class="head">백업 복원은 별도 gate</text><text x="765" y="635" class="body">복원 DB에 파기 이력 재적용</text><text x="765" y="672" class="body">검증되기 전 서비스 재개 금지</text><text x="765" y="710" class="note">현재 자동 복원은 구조 검사만 수행</text>
+<text x="40" y="790" class="body">주의: R2·GitHub·Redis·MySQL 전체를 하나의 트랜잭션으로 되돌릴 수는 없습니다.</text><text x="40" y="824" class="note">부분 실패는 숨기지 않고 의도·독립 기준·재시도 기록으로 조정합니다. 운영 쓰기/동시성 검증은 아직 남아 있습니다.</text>
+</svg>

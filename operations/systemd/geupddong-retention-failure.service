@@ -1,0 +1,22 @@
+[Unit]
+Description=Notify Discord when backup retention inspection fails
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=luha
+UMask=0077
+StateDirectory=geupddong-retention-failure
+StateDirectoryMode=0700
+Environment=GEUPDDONG_SYSTEMD_FAILURE_ENABLED=true
+Environment=GEUPDDONG_FAILURE_EXPECTED_UNIT=geupddong-backup-retention.service
+Environment=GEUPDDONG_FAILURE_STATE_DIR=/var/lib/geupddong-retention-failure
+Environment=GEUPDDONG_FAILURE_WEBHOOK_FILE=/home/luha/toilet-batch/.env
+ExecStart=/usr/bin/python3 /home/luha/.local/bin/systemd-retention-failure.py
+TimeoutStartSec=30s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+# Do not recurse on this handler's failure or automatically resend after an ambiguous timeout.
