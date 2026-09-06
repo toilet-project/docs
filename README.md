@@ -19,7 +19,8 @@
 | 운영 · 적용 전 필수 | [회원정보 자동 파기 Runbook](operations/account-erasure-runbook.md) | MySQL·백업 복원 검증, 모니터링, 재시도·롤백 제한 |
 | 운영 · 최신 구현 검증 | [자동 파기 배치 이관 검증](operations/account-erasure-batch-verification-2026-09-06.md) | 공공데이터 동기화 후 파기, 실패 분리·재시도, 운영 미적용 |
 | 운영 · 실제 DB 검증 | [회원 파기 MySQL 검증](operations/account-retention-native-mysql-2026-09-06.md) | 로컬 MySQL 17건 통과, 운영 버전 차이·남은 조건 |
-| 운영 · 연동 전 설계 | [백업 복원 재파기 설계](operations/account-erasure-backup-design.md) | 외부 삭제 대장 저장소 선택 필요, 아직 미구현 |
+| 운영 · 최신 파기 검증 | [R2 암호화 파기 대장](operations/account-erasure-r2-2026-09-06.md) | 비공개 버킷·가상 데이터 왕복 확인, 로컬 구현 및 운영 전 남은 조건 |
+| 운영 · 복원 설계 | [백업 복원 재파기 설계](operations/account-erasure-backup-design.md) | R2 선기록·복원 차단 계약, 보관 기간·복원 통합 확인 필요 |
 | 운영 · 구현 검증 | [탈퇴·복구 검증 결과](operations/account-retention-verification-2026-09-06.md) | 로컬 SQL·인증·모바일/PC 검증, 전체 테스트 실패·미검증 사항 |
 | 운영 | [배포·운영 가이드](operations/deployment.md) | 도메인, HTTPS, 배포 및 비밀정보 원칙 |
 | 운영 | [운영 안정화 Runbook v1.1](operations/reliability-runbook.md) | 암호화 백업·복구, 재부팅 자동 점검, DB·OAuth 장애 알림 절차 |
