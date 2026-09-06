@@ -1,0 +1,227 @@
+#!/usr/bin/env python3
+"""Explicit structure-only rehearsal. No restore promotion, erasure replay or production writes."""
+import datetime as dt
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import secrets
+import stat
+import subprocess
+import sys
+import time
+import uuid
+
+
+def utc():
+    return dt.datetime.now(dt.timezone.utc).isoformat()
+
+
+def digest(path):
+    with path.open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def identifier(value):
+    if not re.fullmatch(r"[A-Za-z0-9_]+", value):
+        raise ValueError("unexpected SQL identifier")
+    return "`" + value + "`"
+
+
+def main():
+    phase = "preflight"
+    container = None
+    volume_names = []
+    errors = None
+    run = uuid.uuid4().hex
+    result = {"version": 1, "mode": "STRUCTURE_ONLY", "startedAt": utc(),
+              "productionDatabaseModified": False, "erasureReplayVerified": False,
+              "retentionEligible": False, "containerRemoved": False}
+    work = None
+    attempted = False
+    original = None
+    backup = None
+    env = os.environ.copy()
+    try:
+        if len(sys.argv) != 3:
+            raise ValueError("explicit backup and work directory required")
+        backup = Path(sys.argv[1])
+        approved = Path("/home/luha/backups/geupddong/mysql")
+        if backup.parent != approved or backup.resolve(strict=True) != backup or not re.fullmatch(r"toilet-db-[0-9]{8}-[0-9]{6}\.sql\.gz\.enc", backup.name):
+            raise ValueError("invalid backup path")
+        work = Path(sys.argv[2])
+        if not str(work).startswith("/tmp/geupddong-live-backup-check.") or work.resolve(strict=True) != work:
+            raise ValueError("isolated directory required")
+        info = work.stat()
+        if info.st_uid != os.geteuid() or info.st_mode & 0o077:
+            raise ValueError("private directory required")
+        for name in ("result.json", "private-errors.log", "ATTEMPTED"):
+            if (work / name).exists() or (work / name).is_symlink():
+                raise ValueError("fresh attempt directory required")
+        (work / "ATTEMPTED").write_text("isolated-live-backup-rehearsal-v1\n")
+        attempted = True
+        errors = (work / "private-errors.log").open("xb")
+        original = backup.stat()
+        actual_hash = digest(backup)
+        checksum = Path(str(backup) + ".sha256")
+        if checksum.is_symlink() or checksum.stat().st_size > 1024:
+            raise ValueError("invalid checksum file")
+        text = checksum.read_text().strip()
+        if text not in (actual_hash + "  " + str(backup), actual_hash + "  " + backup.name):
+            raise ValueError("checksum mismatch")
+        key = Path("/home/luha/.config/geupddong/backup.key")
+        if not key.is_file():
+            raise ValueError("key unavailable")
+        result.update(backupFilename=backup.name, backupSha256=actual_hash, backupBytes=original.st_size,
+                      backupModifiedAt=dt.datetime.fromtimestamp(original.st_mtime, dt.timezone.utc).isoformat(),
+                      captureMetadataPresent=Path(str(backup) + ".metadata.json").exists())
+
+        def command(args, timeout=60):
+            return subprocess.run(args, check=True, stdout=subprocess.PIPE, stderr=errors,
+                                  env=env, timeout=timeout).stdout.decode().strip()
+
+        phase = "image-identity"
+        image = command(["docker", "inspect", "-f", "{{.Image}}", "toilet-mysql"])
+        if not re.fullmatch(r"sha256:[a-f0-9]{64}", image):
+            raise ValueError("invalid image")
+        result["mysqlImageId"] = image
+        env["MYSQL_ROOT_PASSWORD"] = secrets.token_hex(24)
+        env["MYSQL_PWD"] = env["MYSQL_ROOT_PASSWORD"]
+        phase = "container-create"
+        container = command(["docker", "run", "-d", "--pull=never", "--name", "geupddong-backup-check-" + run,
+                             "--label", "geupddong.backup.rehearsal=" + run, "--network=none", "--memory=1g", "--cpus=1",
+                             "-e", "MYSQL_ROOT_PASSWORD", image, "--skip-log-bin", "--event-scheduler=DISABLED",
+                             "--local-infile=OFF", "--secure-file-priv=NULL", "--default-time-zone=+09:00",
+                             "--innodb-flush-log-at-trx-commit=2", "--max-allowed-packet=1073741824"], timeout=120)
+        env.pop("MYSQL_ROOT_PASSWORD", None)
+        if not re.fullmatch(r"[a-f0-9]{64}", container):
+            raise ValueError("invalid container identity")
+        details = json.loads(command(["docker", "inspect", container]))[0]
+        if details["Config"]["Labels"].get("geupddong.backup.rehearsal") != run or details["HostConfig"]["NetworkMode"] != "none" or details["HostConfig"].get("PortBindings"):
+            raise ValueError("isolation failure")
+        if any(m["Type"] != "volume" or m["Destination"] != "/var/lib/mysql" for m in details["Mounts"]):
+            raise ValueError("unexpected mount")
+        volume_names = [m["Name"] for m in details["Mounts"]]
+        if len(volume_names) != 1 or not re.fullmatch(r"[a-f0-9]{64}", volume_names[0]):
+            raise ValueError("anonymous data volume required")
+        phase = "container-ready"
+        for attempt in range(60):
+            ping = subprocess.run(["docker", "exec", "-e", "MYSQL_PWD", container, "mysqladmin", "--protocol=tcp", "-h127.0.0.1", "-uroot", "ping", "--silent"],
+                                  env=env, stdout=subprocess.DEVNULL, stderr=errors, timeout=5)
+            if ping.returncode == 0:
+                break
+            time.sleep(1)
+        else:
+            raise ValueError("isolated startup failed")
+
+        def query(sql):
+            return command(["docker", "exec", "-e", "MYSQL_PWD", container, "mysql", "--binary-mode", "--local-infile=0", "-uroot", "-N", "-B", "-e", sql])
+
+        phase = "server-guards"
+        guards = query("SELECT @@version, @@event_scheduler, @@log_bin, @@local_infile, @@secure_file_priv, @@global.time_zone;").split("\t")
+        if len(guards) != 6 or guards[0] != "8.0.46" or guards[1:5] != ["DISABLED", "0", "0", "NULL"] or guards[5] != "+09:00":
+            raise ValueError("database guards failed")
+        result["mysqlVersion"] = guards[0]
+        phase = "backup-import"
+        # Plaintext goes only through pipes into the isolated MySQL. Never save it to a host file.
+        processes = []
+        try:
+            decrypt = subprocess.Popen(["openssl", "enc", "-d", "-aes-256-cbc", "-pbkdf2", "-iter", "200000", "-pass", "file:" + str(key), "-in", str(backup)], stdout=subprocess.PIPE, stderr=errors)
+            processes.append(decrypt)
+            unpack = subprocess.Popen(["gzip", "-dc"], stdin=decrypt.stdout, stdout=subprocess.PIPE, stderr=errors)
+            processes.append(unpack)
+            decrypt.stdout.close()
+            mysql = subprocess.Popen(["docker", "exec", "-i", "-e", "MYSQL_PWD", container, "mysql", "--binary-mode", "--local-infile=0", "--skip-reconnect", "-uroot"],
+                                     stdin=unpack.stdout, stdout=subprocess.DEVNULL, stderr=errors, env=env)
+            processes.append(mysql)
+            unpack.stdout.close()
+            statuses = [p.wait(timeout=900) for p in reversed(processes)]
+            if any(statuses):
+                raise ValueError("backup import failed")
+        finally:
+            for process in processes:
+                if process.poll() is None:
+                    process.kill()
+                    process.wait()
+        phase = "isolated-durability-restore"
+        query("SET GLOBAL innodb_flush_log_at_trx_commit=1; FLUSH ENGINE LOGS;")
+        if query("SELECT @@global.innodb_flush_log_at_trx_commit;") != "1":
+            raise ValueError("isolated durability restore failed")
+        result["isolatedImportFlushMode"] = "2 during import; 1 plus FLUSH ENGINE LOGS before verification"
+        phase = "aggregate-checks"
+        tables = query("SELECT table_name FROM information_schema.tables WHERE table_schema='toilet_db' AND table_type='BASE TABLE' ORDER BY table_name;").splitlines()
+        if "toilet" not in tables or "app_user" not in tables or "toilet_report" not in tables:
+            raise ValueError("required schema missing")
+        counts = {table: int(query("SELECT COUNT(*) FROM toilet_db." + identifier(table) + ";")) for table in tables}
+        if counts["toilet"] == 0:
+            raise ValueError("empty toilets")
+        fk_rows = query("SELECT table_name,constraint_name,column_name,referenced_table_name,referenced_column_name FROM information_schema.key_column_usage WHERE table_schema='toilet_db' AND referenced_table_schema='toilet_db' ORDER BY table_name,constraint_name,ordinal_position;").splitlines()
+        groups = {}
+        for row in fk_rows:
+            table, constraint, child, parent, ref = row.split("\t")
+            groups.setdefault((table, constraint, parent), []).append((child, ref))
+        orphan_total = 0
+        for (table, constraint, parent), pairs in groups.items():
+            joins = " AND ".join("c." + identifier(child) + "=p." + identifier(ref) for child, ref in pairs)
+            notnull = " AND ".join("c." + identifier(child) + " IS NOT NULL" for child, ref in pairs)
+            orphan_total += int(query("SELECT COUNT(*) FROM toilet_db." + identifier(table) + " c LEFT JOIN toilet_db." + identifier(parent) + " p ON " + joins + " WHERE " + notnull + " AND p." + identifier(pairs[0][1]) + " IS NULL;"))
+        result.update(tableCount=len(tables), rowCounts=counts, foreignKeysChecked=len(groups), foreignKeyOrphans=orphan_total,
+                      accountWithdrawalTablePresent="account_withdrawal" in tables, structureVerified=orphan_total == 0)
+        if orphan_total:
+            raise ValueError("foreign key orphans")
+        phase = "source-preservation"
+        after = backup.stat()
+        if (original.st_size, original.st_mtime_ns, original.st_ino) != (after.st_size, after.st_mtime_ns, after.st_ino) or digest(backup) != actual_hash:
+            raise ValueError("source changed")
+        result["sourceBackupUnchanged"] = True
+        result["outcome"] = "STRUCTURE_VERIFIED_NOT_ERASURE_CLEARED"
+    except Exception as error:
+        result.update(outcome="FAILED", failurePhase=phase,
+                      failureKind="TIMEOUT" if isinstance(error, subprocess.TimeoutExpired) else "CHECK_OR_COMMAND_FAILED")
+        print("LIVE_BACKUP_REHEARSAL_FAILED phase=" + phase, file=sys.stderr)
+    finally:
+        removed = container is None
+        if container is None and phase == "container-create":
+            try:
+                recovered = subprocess.run(["docker", "ps", "-aq", "--no-trunc", "--filter", "label=geupddong.backup.rehearsal=" + run],
+                                           check=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=10).stdout.decode().splitlines()
+                if len(recovered) == 1:
+                    container = recovered[0]
+                elif recovered:
+                    removed = False
+            except Exception:
+                removed = False
+        if container and re.fullmatch(r"[a-f0-9]{64}", container):
+            try:
+                inspection = subprocess.run(["docker", "inspect", "-f", '{{index .Config.Labels "geupddong.backup.rehearsal"}}', container],
+                                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=10, check=True)
+                if inspection.stdout.decode().strip() != run:
+                    raise ValueError("cleanup ownership mismatch")
+                subprocess.run(["docker", "rm", "-fv", container], check=True, stdout=subprocess.DEVNULL, stderr=errors, timeout=60)
+                remaining = subprocess.run(["docker", "volume", "ls", "-q"], check=True, stdout=subprocess.PIPE,
+                                           stderr=subprocess.DEVNULL, timeout=10).stdout.decode().splitlines()
+                removed = all(name not in remaining for name in volume_names)
+            except Exception:
+                removed = False
+        result["containerRemoved"] = removed
+        result["completedAt"] = utc()
+        if not removed:
+            result["outcome"] = "FAILED_CLEANUP_REVIEW_REQUIRED"
+            print("LIVE_BACKUP_CLEANUP_FAILED", file=sys.stderr)
+        env.pop("MYSQL_PWD", None)
+        if errors:
+            errors.close()
+        if attempted:
+            with (work / "result.json").open("x") as out:
+                json.dump(result, out, indent=2)
+            os.chmod(work / "result.json", 0o600)
+    if result.get("outcome") == "STRUCTURE_VERIFIED_NOT_ERASURE_CLEARED" and result["containerRemoved"]:
+        print("LIVE_BACKUP_REHEARSAL_OK tables=" + str(result["tableCount"]) + " toilets=" + str(result["rowCounts"]["toilet"]) + " foreignKeyOrphans=0 containerRemoved=true retentionEligible=false")
+        return 0
+    return 1
+
+
+if __name__ == "__main__":
+    os.umask(0o077)
+    sys.exit(main())
