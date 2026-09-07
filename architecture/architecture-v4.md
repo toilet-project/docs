@@ -51,12 +51,12 @@ MySQL은 서버 loopback/내부 네트워크로 접근하며 인터넷 공개 DB
 - 고정 IP/gateway 의존을 DHCP로 전환하고 실제 공유기 교체 후 Tunnel 연결 4개와 내부 SSH·공개 API·관리자 화면을 확인했다.
 - 기존 호스트 키로 동일 서버를 확인했다. 내부 IP·MAC·사용자별 실행 명령은 비공개 인수 문서에 보관한다.
 - 단계별 원복 타이머는 확인 후 비활성화했다. 상시 자동 복구 장치가 아니다.
-- API/Batch/Admin의 실제 Tunnel 경유 배포와 이전 이미지/설정 보존을 확인했다. 전체 호스트 재부팅·실제 구버전 rollback은 별도 미완료다.
+- API/Batch/Admin의 실제 Tunnel 경유 배포와 이전 이미지/설정 보존을 확인했다. 첫 부팅의 배포 SSH 순서 오류 수정 후 두 번째 호스트 재부팅·자동 복귀도 확인했다. 실제 구버전 rollback은 별도 미완료다.
 - 내부·외부 SSH 포워드에서 MySQL 응답을 확인했고 서버 측 운영 DB 계정으로 읽기 전용 인증도 확인했다. Workbench GUI의 최종 Test Connection 확인은 별도다.
 
 ## 5. 남은 검증
 
-TLS staging 갱신 종료0 및 운영 인증서/설정 불변, Tunnel·Nginx·ready 감시 설치와 Discord 시험1건 전달, 다음 5분 정기 건강 점검까지 확인했다. 공급자별 인증·세션 세부 검증, 다음 정기 배치, 실제 재부팅/복구 및 테스트 자원 정리는 남아 있다. 테스트라는 이름이 붙은 공유 Tunnel도 운영 트래픽을 운반하므로 이름만 보고 삭제하지 않는다.
+TLS staging 갱신 종료0·운영 인증서/설정 불변, 감시 설치·Discord 시험1건 전달, 수정 후 재부팅 자동 복귀와 첫 정기 건강 점검까지 확인했다. 공급자별 인증·세션 세부 검증, 다음 정기 배치, 실제 장애/구버전 복구 및 남은 Cloudflare 테스트 자원 정리는 미완료다. 시험 Secrets4개·서버 시험키1줄·시험 workflow/listener 정리는 완료했으며 테스트라는 이름이 붙은 공유 Tunnel 자체는 운영 트래픽을 운반하므로 삭제하지 않는다.
 
 [접속·Workbench 인수](../operations/tunnel-access-runbook.md) · [총괄 WBS #73](https://github.com/toilet-project/docs/issues/73) · [운영 배포 #77](https://github.com/toilet-project/docs/issues/77) · [복구·감시 #78](https://github.com/toilet-project/docs/issues/78).
 
