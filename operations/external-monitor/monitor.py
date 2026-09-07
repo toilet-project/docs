@@ -205,7 +205,7 @@ def main():
     if args.mode != 'probe' and not (os.environ.get('GITHUB_REPOSITORY') == 'toilet-project/docs'
             and os.environ.get('GITHUB_REF') == 'refs/heads/main' and os.environ.get('EXTERNAL_MONITOR_ENABLED') == 'true'):
         parser.error('Notification mode requires approved main context and activation flag')
-    webhook = os.environ.get('DISCORD_EXTERNAL_MONITOR_WEBHOOK', '')
+    webhook = os.environ.get('DISCORD_EXTERNAL_MONITOR_WEBHOOK', '').strip()
     if args.mode != 'probe' and not webhook:
         parser.error('Dedicated notification secret is missing')
     return execute(args.mode, args.state, args.summary, webhook)
