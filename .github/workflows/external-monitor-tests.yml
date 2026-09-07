@@ -1,0 +1,21 @@
+name: External monitor safety tests
+on:
+  push:
+    branches: [feature/independent-external-monitor, main]
+    paths: ['operations/external-monitor/**', '.github/workflows/external-*.yml']
+  pull_request:
+    paths: ['operations/external-monitor/**', '.github/workflows/external-*.yml']
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - run: python3 -m unittest discover -s operations/external-monitor -p 'test_*.py' -v
+      - name: Public read-only probe without notification credentials
+        if: github.event_name == 'push' && github.repository == 'toilet-project/docs'
+        run: python3 operations/external-monitor/monitor.py --mode probe
