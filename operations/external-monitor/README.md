@@ -40,6 +40,8 @@ cache는 영구 저장소가 아니다. 유실·손상·3일 이상 오래된 �
 
 ## 운영 인수·중지
 
+Discord 요청은 공식 규격의 `DiscordBot` 클라이언트 식별 헤더를 사용하며, `wait=true`의 HTTP 200 및 저장된 메시지 응답을 확인한 후에만 성공으로 기록한다. 로그에는 HTTP 상태와 확인 여부만 남기고 웹훅 URL·응답 원문·메시지 ID는 출력하지 않는다. [Discord API 규격](https://docs.discord.com/developers/reference), [웹훅 저장 확인](https://docs.discord.com/developers/resources/webhook).
+
 1. 격리 테스트 → 무알림 로컬 공개 probe → PR CI.
 2. 승인 범위에서 main 병합 → 전용 Secret 등록 → 활성 변수 true.
 3. `probe`의 GitHub 외부 실접속 확인 → 승인된 테스트 알림1건 → 수동 `monitor` → 첫 정기 실행 확인.
