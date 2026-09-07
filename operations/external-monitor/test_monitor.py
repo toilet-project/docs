@@ -204,6 +204,18 @@ class Execution(unittest.TestCase):
 
 
 class NotificationSafety(unittest.TestCase):
+    def test_notification_rejected_outside_main(self):
+        with patch.dict(m.os.environ, {'GITHUB_REPOSITORY': 'toilet-project/docs', 'GITHUB_REF': 'refs/heads/feature/test', 'EXTERNAL_MONITOR_ENABLED': 'true'}, clear=True), patch('sys.argv', ['monitor.py', '--mode', 'monitor']), patch.object(m, 'execute') as execute, contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                m.main()
+            execute.assert_not_called()
+
+    def test_main_requires_explicit_activation(self):
+        with patch.dict(m.os.environ, {'GITHUB_REPOSITORY': 'toilet-project/docs', 'GITHUB_REF': 'refs/heads/main'}, clear=True), patch('sys.argv', ['monitor.py', '--mode', 'notification-test']), patch.object(m, 'execute') as execute, contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                m.main()
+            execute.assert_not_called()
+
     def test_bad_webhook_never_requested(self):
         bad = ['http://discord.com/api/webhooks/1/a', 'https://evil.invalid/api/webhooks/1/a',
                'https://discord.com.evil.invalid/api/webhooks/1/a', 'https://discord.com:bad/',
