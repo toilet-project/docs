@@ -1,0 +1,61 @@
+name: Independent external availability
+on:
+  schedule:
+    - cron: '7,17,27,37,47,57 * * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [probe, monitor, notification-test]
+        default: probe
+        description: 'probe never sends notifications; other modes require approved main activation'
+permissions:
+  contents: read
+concurrency:
+  group: external-availability-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  check:
+    if: >-
+      github.repository == 'toilet-project/docs' &&
+      ((github.event_name == 'schedule' && vars.EXTERNAL_MONITOR_ENABLED == 'true') ||
+       (github.event_name == 'workflow_dispatch' &&
+        (inputs.mode == 'probe' || (github.ref == 'refs/heads/main' && vars.EXTERNAL_MONITOR_ENABLED == 'true'))))
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      MODE: ${{ github.event_name == 'schedule' && 'monitor' || inputs.mode }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Isolated safety tests
+        run: python3 -m unittest discover -s operations/external-monitor -p 'test_*.py' -v
+      - name: Restore notification deduplication state
+        if: env.MODE == 'monitor'
+        continue-on-error: true # Cache outage must not skip the actual availability probes.
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .external-monitor/state.json
+          key: external-availability-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: external-availability-v1-
+      - name: Probe public endpoints and deliver only approved notifications
+        env:
+          EXTERNAL_MONITOR_ENABLED: ${{ vars.EXTERNAL_MONITOR_ENABLED }}
+          DISCORD_EXTERNAL_MONITOR_WEBHOOK: ${{ env.MODE != 'probe' && secrets.DISCORD_EXTERNAL_MONITOR_WEBHOOK || '' }}
+        run: python3 operations/external-monitor/monitor.py --mode "$MODE"
+      - name: Save notification state
+        if: always() && env.MODE == 'monitor' && hashFiles('.external-monitor/state.json') != ''
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .external-monitor/state.json
+          key: external-availability-v1-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Save sanitized result (never HTTP bodies, cookies, or credentials)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: external-availability-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .external-monitor-summary/result.json
+          retention-days: 7
+          include-hidden-files: true
+          if-no-files-found: warn
