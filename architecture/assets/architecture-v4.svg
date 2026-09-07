@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">급똥 운영 연결 구조 v4</title>
+  <desc id="desc">사용자 웹은 Next.js Workers에서 제공하며 API, 관리자, 배포, 개인 SSH는 용도별 인증을 거쳐 Cloudflare Tunnel로 미니 PC에 연결한다. MySQL과 Redis는 공개하지 않는다.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#277154"/></marker>
+    <style>
+      text{font-family:'Malgun Gothic','Noto Sans KR',sans-serif;fill:#173e30}
+      .label{font-size:18px;font-weight:700}.sub{font-size:14px;fill:#4d695e}
+      .node{fill:#fff;stroke:#bfd3c8;stroke-width:1.5}.edge{fill:#edf6f1;stroke:#a6c9b7;stroke-width:1.5}
+      .line{stroke:#277154;stroke-width:2;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1200" height="720" rx="18" fill="#f6f9f7"/>
+  <text x="34" y="46" font-size="28" font-weight="700">급똥 · 운영 연결 구조</text>
+  <text x="34" y="75" class="sub">v4.0 / 2026-09-07 · 데이터 흐름을 용도별로 분리한 개념도</text>
+  <text x="34" y="109" class="sub">접속 주체</text><text x="310" y="109" class="sub">Cloudflare · 렌더링 / 인증</text><text x="611" y="109" class="sub">연결 경계</text><text x="908" y="109" class="sub">미니 PC</text>
+  <g>
+    <rect class="node" x="34" y="125" width="218" height="86" rx="12"/><rect class="edge" x="306" y="125" width="245" height="86" rx="12"/><rect class="edge" x="606" y="125" width="245" height="86" rx="12"/><rect class="node" x="906" y="125" width="260" height="86" rx="12"/>
+    <text x="52" y="158" class="label">사용자 브라우저</text><text x="52" y="185" class="sub">지도 · 상세 · 로그인 · 제보</text>
+    <text x="324" y="158" class="label">Workers · Next.js</text><text x="324" y="185" class="sub">OpenNext / 상세 SEO · 웹 캐시</text>
+    <text x="624" y="158" class="label">공개 API → Tunnel</text><text x="624" y="185" class="sub">브라우저의 직접 API 요청도 포함</text>
+    <text x="924" y="158" class="label">Nginx → toilet-api</text><text x="924" y="185" class="sub">Spring Security · 업무 API</text>
+    <path class="line" d="M252 168 H298"/><path class="line" d="M551 168 H598"/><path class="line" d="M851 168 H898"/>
+  </g>
+  <g>
+    <rect class="node" x="34" y="237" width="218" height="86" rx="12"/><rect class="edge" x="306" y="237" width="245" height="86" rx="12"/><rect class="edge" x="606" y="237" width="245" height="86" rx="12"/><rect class="node" x="906" y="237" width="260" height="86" rx="12"/>
+    <text x="52" y="270" class="label">관리자 브라우저</text><text x="52" y="297" class="sub">대시보드 · 제보 검토</text>
+    <text x="324" y="270" class="label">Cloudflare Access</text><text x="324" y="297" class="sub">허용된 운영자 인증</text>
+    <text x="624" y="270" class="label">Tunnel + 원본 JWT</text><text x="624" y="297" class="sub">관리자 앱에 맞는 토큰 검증</text>
+    <text x="924" y="270" class="label">Nginx → Admin 앱</text><text x="924" y="297" class="sub">애플리케이션 ADMIN 인가 유지</text>
+    <path class="line" d="M252 280 H298"/><path class="line" d="M551 280 H598"/><path class="line" d="M851 280 H898"/>
+  </g>
+  <g>
+    <rect class="node" x="34" y="349" width="218" height="86" rx="12"/><rect class="edge" x="306" y="349" width="245" height="86" rx="12"/><rect class="edge" x="606" y="349" width="245" height="86" rx="12"/><rect class="node" x="906" y="349" width="260" height="86" rx="12"/>
+    <text x="52" y="382" class="label">GitHub Actions</text><text x="52" y="409" class="sub">API · Batch · Admin 배포</text>
+    <text x="324" y="382" class="label">Service Auth</text><text x="324" y="409" class="sub">제품 저장소별 전용 자격증명</text>
+    <text x="624" y="382" class="label">Tunnel → 배포 SSH</text><text x="624" y="409" class="sub">SSH 키 + 고정 호스트 키 검증</text>
+    <text x="924" y="382" class="label">Docker 배포</text><text x="924" y="409" class="sub">SHA 이미지 · 백업 · 상태 검사</text>
+    <path class="line" d="M252 392 H298"/><path class="line" d="M551 392 H598"/><path class="line" d="M851 392 H898"/>
+  </g>
+  <g>
+    <rect class="node" x="34" y="461" width="218" height="86" rx="12"/><rect class="edge" x="306" y="461" width="245" height="86" rx="12"/><rect class="edge" x="606" y="461" width="245" height="86" rx="12"/><rect class="node" x="906" y="461" width="260" height="86" rx="12"/>
+    <text x="52" y="494" class="label">운영자 PC</text><text x="52" y="521" class="sub">터미널 · MySQL Workbench</text>
+    <text x="324" y="494" class="label">본인 Access · 6시간</text><text x="324" y="521" class="sub">CI 토큰과 분리한 사용자 인증</text>
+    <text x="624" y="494" class="label">Tunnel → 개인 SSH</text><text x="624" y="521" class="sub">원본 JWT + 기존 개인 SSH 키</text>
+    <text x="924" y="494" class="label">셸 / MySQL 포워드</text><text x="924" y="521" class="sub">DB 목적지만 · DB 계정 별도 인증</text>
+    <path class="line" d="M252 504 H298"/><path class="line" d="M551 504 H598"/><path class="line" d="M851 504 H898"/>
+  </g>
+  <path d="M34 578 H1166" stroke="#d4e1d9"/>
+  <text x="34" y="608" class="label">미니 PC 데이터</text><text x="250" y="608" font-size="16">MySQL · 화장실/사용자/이력　|　Redis · refresh 세션　|　Batch · 02:00 KST</text>
+  <text x="34" y="639" class="label">웹 캐시 저장소</text><text x="250" y="639" font-size="16">R2 · 캐시 본문　|　D1 · 갱신 태그　|　Durable Object · 재검증 큐</text>
+  <text x="34" y="681" class="sub">Tunnel은 서버에서 외부로 연결 · MySQL/Redis 공개 포트 없음 · 기존 시험 자원과 복구 자료는 별도 승인 전 보존</text>
+</svg>

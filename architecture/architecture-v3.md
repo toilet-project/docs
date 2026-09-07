@@ -1,6 +1,6 @@
 # 급똥 운영 아키텍처 v3.0
 
-> 기준일: 2026-08-31 · 상태: 운영 반영 기준
+> 기준일: 2026-08-31 · 당시 운영 구조를 보존한 기록. 현재 Workers/Tunnel 구조는 [v4](architecture-v4.md)를 참고한다.
 
 ![급똥 운영 아키텍처 v3](assets/architecture-v3.svg)
 
