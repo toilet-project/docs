@@ -42,15 +42,23 @@ jobs:
           # command="/usr/bin/hostname",restrict. Never use a deploy key here.
           printf '%s\n' "$TEST_SSH_KEY" > "$RUNNER_TEMP/tunnel-test-key"
           printf '%s\n' "$TEST_KNOWN_HOSTS" > "$RUNNER_TEMP/tunnel-known-hosts"
+          ssh-keygen -y -P '' -f "$RUNNER_TEMP/tunnel-test-key" > "$RUNNER_TEMP/tunnel-test-public"
+          key_fingerprint=$(ssh-keygen -lf "$RUNNER_TEMP/tunnel-test-public" | awk '{print $2}')
+          test "$key_fingerprint" = 'SHA256:UNaDmFOlz97dWjbD0RkJjkeBYpQEfImviuqZVfbhuK0'
+          echo 'PASS: runner private key parses and matches installed public-key fingerprint.'
           export PATH="$RUNNER_TEMP/cloudflared-package/usr/bin:$PATH"
-          actual_hostname=$(timeout 45s ssh -F /dev/null -T -i "$RUNNER_TEMP/tunnel-test-key" \
+          if ! actual_hostname=$(timeout 45s ssh -v -E "$RUNNER_TEMP/tunnel-ssh-diagnostic.log" -F /dev/null -T -i "$RUNNER_TEMP/tunnel-test-key" \
             -o IdentitiesOnly=yes -o BatchMode=yes -o PasswordAuthentication=no \
             -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/tunnel-known-hosts" \
             -o HostKeyAlias=geupddong-mini-pc -o HostKeyAlgorithms=ssh-ed25519 \
             -o ForwardAgent=no -o ClearAllForwardings=yes \
             -o ConnectTimeout=15 -o ServerAliveInterval=10 -o ServerAliveCountMax=2 \
             -o 'ProxyCommand=cloudflared access ssh --hostname %h' \
-            luha@ssh-ci-tunnel-test.geupddong.com /usr/bin/hostname)
+            luha@ssh-ci-tunnel-test.geupddong.com /usr/bin/hostname); then
+            grep -E 'Offering public key|Server accepts key|Authentications that can continue|Load key|sign_and_send_pubkey' \
+              "$RUNNER_TEMP/tunnel-ssh-diagnostic.log" || true
+            exit 1
+          fi
           if [[ "$actual_hostname" != 'luhahome' ]]; then
             echo 'Unexpected hostname; refusing to mark the test successful.' >&2
             exit 1
@@ -63,4 +71,5 @@ jobs:
         run: |
           set -euo pipefail
           test -n "${RUNNER_TEMP:?}"
-          rm -f -- "$RUNNER_TEMP/tunnel-test-key" "$RUNNER_TEMP/tunnel-known-hosts"
+          rm -f -- "$RUNNER_TEMP/tunnel-test-key" "$RUNNER_TEMP/tunnel-known-hosts" \
+            "$RUNNER_TEMP/tunnel-test-public" "$RUNNER_TEMP/tunnel-ssh-diagnostic.log"
