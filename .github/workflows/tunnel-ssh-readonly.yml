@@ -1,0 +1,66 @@
+name: Tunnel SSH read-only connectivity
+on:
+  push:
+    branches: [test/tunnel-ssh-readonly]
+    paths: [.github/workflows/tunnel-ssh-readonly.yml]
+permissions:
+  contents: read
+concurrency:
+  group: tunnel-ssh-readonly
+  cancel-in-progress: false
+jobs:
+  hostname-only:
+    if: github.repository == 'toilet-project/docs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Download pinned official connector
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 \
+            --connect-timeout 10 --max-time 60 \
+            https://github.com/cloudflare/cloudflared/releases/download/2026.8.3/cloudflared-linux-amd64.deb \
+            -o "$RUNNER_TEMP/cloudflared.deb"
+          printf '%s  %s\n' 660b348d473bba81997445b534e7eaefaf4c4e16331866922326c338a7013dd9 "$RUNNER_TEMP/cloudflared.deb" | sha256sum -c -
+          dpkg-deb --extract "$RUNNER_TEMP/cloudflared.deb" "$RUNNER_TEMP/cloudflared-package"
+      - name: Verify hostname through Access and OpenSSH
+        shell: bash
+        env:
+          TUNNEL_SERVICE_TOKEN_ID: ${{ secrets.TUNNEL_TEST_ACCESS_CLIENT_ID }}
+          TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.TUNNEL_TEST_ACCESS_CLIENT_SECRET }}
+          TEST_SSH_KEY: ${{ secrets.TUNNEL_TEST_SSH_KEY }}
+          TEST_KNOWN_HOSTS: ${{ secrets.TUNNEL_TEST_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          umask 077
+          : "${TUNNEL_SERVICE_TOKEN_ID:?missing Access ID}"
+          : "${TUNNEL_SERVICE_TOKEN_SECRET:?missing Access secret}"
+          : "${TEST_SSH_KEY:?missing forced-command test key}"
+          : "${TEST_KNOWN_HOSTS:?missing pinned host keys}"
+          # Server key: loopback only, expires 24h after installation,
+          # command="/usr/bin/hostname",restrict. Never use a deploy key here.
+          printf '%s\n' "$TEST_SSH_KEY" > "$RUNNER_TEMP/tunnel-test-key"
+          printf '%s\n' "$TEST_KNOWN_HOSTS" > "$RUNNER_TEMP/tunnel-known-hosts"
+          export PATH="$RUNNER_TEMP/cloudflared-package/usr/bin:$PATH"
+          actual_hostname=$(timeout 45s ssh -F /dev/null -T -i "$RUNNER_TEMP/tunnel-test-key" \
+            -o IdentitiesOnly=yes -o BatchMode=yes -o PasswordAuthentication=no \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/tunnel-known-hosts" \
+            -o HostKeyAlias=geupddong-mini-pc -o HostKeyAlgorithms=ssh-ed25519 \
+            -o ForwardAgent=no -o ClearAllForwardings=yes \
+            -o ConnectTimeout=15 -o ServerAliveInterval=10 -o ServerAliveCountMax=2 \
+            -o 'ProxyCommand=cloudflared access ssh --hostname %h' \
+            luha@ssh-ci-tunnel-test.geupddong.com /usr/bin/hostname)
+          if [[ "$actual_hostname" != 'luhahome' ]]; then
+            echo 'Unexpected hostname; refusing to mark the test successful.' >&2
+            exit 1
+          fi
+          echo 'PASS: Access service token + pinned SSH host key + expected hostname.'
+          echo 'No deployment or business-data mutation was performed.'
+      - name: Remove ephemeral runner credential files
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${RUNNER_TEMP:?}"
+          rm -f -- "$RUNNER_TEMP/tunnel-test-key" "$RUNNER_TEMP/tunnel-known-hosts"
