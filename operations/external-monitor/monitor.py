@@ -16,6 +16,7 @@ TARGETS = {'web': 'https://geupddong.com/', 'api': 'https://api.geupddong.com/ap
 CODES = {'OK', 'NETWORK', 'TLS', 'ACCESS_BLOCKED', 'HTTP_ERROR', 'CONTENT', 'CACHED_HEALTH', 'FLAPPING'}
 MAX_STATE_AGE = 3 * 86400
 REMINDER = 3600
+DISCORD_USER_AGENT = 'DiscordBot (https://github.com/toilet-project/docs, 1.0)'
 
 
 def classify(target, status, headers, body):
@@ -138,14 +139,22 @@ def send(webhook, message):
     except ValueError:
         valid = False
     if not valid:
+        print(json.dumps({'notification_error': 'INVALID_WEBHOOK_CONFIGURATION'}))
         return False
     payload = json.dumps({'content': message, 'allowed_mentions': {'parse': []}}, ensure_ascii=False).encode()
-    request = urllib.request.Request(webhook, data=payload, method='POST',
-                                    headers={'Content-Type': 'application/json'})
+    request = urllib.request.Request(webhook + '?wait=true', data=payload, method='POST',
+                                    headers={'Content-Type': 'application/json', 'User-Agent': DISCORD_USER_AGENT})
     try:
         with urllib.request.build_opener(NoRedirect).open(request, timeout=10) as response:
-            return 200 <= response.status < 300
-    except (OSError, urllib.error.URLError):
+            accepted = response.status == 200 and bool(json.loads(response.read(16384)).get('id'))
+            print(json.dumps({'notification_http_status': response.status, 'saved_message_confirmed': accepted}))
+            return accepted
+    except urllib.error.HTTPError as error:
+        print(json.dumps({'notification_http_status': error.code, 'saved_message_confirmed': False}))
+        error.close()
+        return False
+    except (OSError, urllib.error.URLError, ValueError, AttributeError):
+        print(json.dumps({'notification_error': 'TRANSPORT_OR_CONFIRMATION', 'saved_message_confirmed': False}))
         return False  # Never print exception text: it may contain the webhook URL.
 
 

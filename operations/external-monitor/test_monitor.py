@@ -231,13 +231,32 @@ class NotificationSafety(unittest.TestCase):
 
     def test_mentions_disabled(self):
         response = Mock()
-        response.__enter__ = Mock(return_value=Mock(status=204))
+        response.__enter__ = Mock(return_value=Mock(status=200, read=Mock(return_value=b'{"id":"123"}')))
         response.__exit__ = Mock(return_value=False)
         opener = Mock()
         opener.open.return_value = response
         with patch.object(m.urllib.request, 'build_opener', return_value=opener):
             self.assertTrue(m.send('https://discord.com/api/webhooks/1/fixture', '@everyone'))
         self.assertEqual(json.loads(opener.open.call_args.args[0].data)['allowed_mentions'], {'parse': []})
+        self.assertEqual(opener.open.call_args.args[0].get_header('User-agent'), m.DISCORD_USER_AGENT)
+        self.assertTrue(opener.open.call_args.args[0].full_url.endswith('?wait=true'))
+
+    def test_missing_saved_message_is_failure(self):
+        response = Mock()
+        response.__enter__ = Mock(return_value=Mock(status=200, read=Mock(return_value=b'{}')))
+        response.__exit__ = Mock(return_value=False)
+        opener = Mock()
+        opener.open.return_value = response
+        with patch.object(m.urllib.request, 'build_opener', return_value=opener):
+            self.assertFalse(m.send('https://discord.com/api/webhooks/1/fixture', 'test'))
+
+    def test_http_error_only_status_is_logged(self):
+        opener = Mock()
+        opener.open.side_effect = m.urllib.error.HTTPError('https://discord.com/api/webhooks/1/secret-fixture', 403, 'secret-fixture', {}, None)
+        with patch.object(m.urllib.request, 'build_opener', return_value=opener), contextlib.redirect_stdout(io.StringIO()) as out:
+            self.assertFalse(m.send('https://discord.com/api/webhooks/1/fixture', 'test'))
+        self.assertIn('403', out.getvalue())
+        self.assertNotIn('secret-fixture', out.getvalue())
 
     def test_send_failure_no_exception_or_secret_output(self):
         opener = Mock()
