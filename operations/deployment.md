@@ -1,4 +1,6 @@
-# 운영 가이드 v2.0
+# 운영 가이드 v2.1
+
+2026-09-07: API·관리자 트래픽과 세 제품의 배포 SSH는 Tunnel로 전환했습니다. [접속·검증 결과와 Workbench 안내](tunnel-access-runbook.md)를 확인하세요. 인증서 실제 갱신·복구·시험 리소스 정리는 별도 인수 항목입니다.
 
 ## 도메인과 HTTPS
 
@@ -19,7 +21,7 @@ Mini PC(Ubuntu)에서 Docker로 `toilet-api`, `toilet-admin-api`, `toilet-batch`
 1. 기능 브랜치 → `develop` → `main` 병합
 2. GitHub Actions에서 Java 21 빌드·테스트·정적 분석
 3. Docker 이미지 빌드 후 Docker Hub 푸시
-4. SSH로 Mini PC에 접속하여 Docker Compose pull/up
+4. 저장소별 Cloudflare Service Auth와 Tunnel 전용 SSH를 통해 Mini PC에 접속하여 기존 배포 작업 실행
 5. `/api/health`, 관리자 화면, 최근 `batch_sync_history`를 기준으로 배포 결과 점검
 
 ## 비밀정보 원칙
@@ -39,4 +41,5 @@ Mini PC(Ubuntu)에서 Docker로 `toilet-api`, `toilet-admin-api`, `toilet-batch`
 
 | 버전 | 일자 | 변경 |
 | --- | --- | --- |
+| v2.1 | 2026-09-07 | Tunnel 경유 실제 제품 배포·개인 SSH/Workbench 인수 문서 연결 |
 | v2.0 | 2026-08-31 | 관리자 Access, Redis, 배치 이력·정기 점검 기준 반영 |
