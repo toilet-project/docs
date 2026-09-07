@@ -8,7 +8,7 @@
 
 ## 최신 작업 요약
 
-운영 API·관리자 및 세 제품의 실제 배포 연결을 Cloudflare Tunnel로 전환하고 공유기 교체 후 재연결을 확인했습니다. 개인 외부 SSH·Workbench 인증과 복구·TLS·정리 후속 인수는 구분해 관리합니다. [Tunnel 접속·인수 가이드](operations/tunnel-access-runbook.md)를 참고하세요. 아래 v3 그림은 이전 시점 자료이며 Tunnel과 웹 전환을 반영한 전체 그림은 후속 갱신 대상입니다.
+운영 API·관리자 및 세 제품의 실제 배포 연결을 Cloudflare Tunnel로 전환하고 공유기 교체 후 재연결을 확인했습니다. 개인 외부 SSH·MySQL 포워드 검증은 완료했고 Workbench DB 계정 인증과 복구·TLS·정리 후속 인수는 남아 있습니다. [Tunnel 접속·인수 가이드](operations/tunnel-access-runbook.md)를 참고하세요. 아래 v3 그림은 이전 시점 자료이며 Tunnel과 웹 전환을 반영한 전체 그림은 후속 갱신 대상입니다.
 
 행정구역 정규화는 설계 → 표본 검증 → 전수 분석 → 운영 적재 → 관리자 검토 → 실제 제보 승인·자동 재판정까지 확인했습니다. 다음 정기 배치의 확정 좌표·주소 보호 확인은 남아 있습니다. [관리자 검토 배포 보고서](operations/region-admin-review-release-2026-09-05.md)에서 최신 결과를 확인할 수 있습니다. 과거 보고서는 당시 시점의 기록이며, 상세 JSON·시설별 검토 목록은 비공개로 보존합니다.
 

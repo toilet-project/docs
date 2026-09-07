@@ -9,8 +9,8 @@
 | 공개 API | Cloudflare → Tunnel → 로컬 Nginx → API | 공개 회귀 9건·사용자 로그인 복귀 |
 | 관리자 | 사용자 Access → Tunnel 원본 JWT 검증 → Nginx → 관리자 | 사용자 대시보드 진입; 앱 ADMIN 권한 검증 유지 |
 | 제품 배포 | 저장소별 Service Auth → Tunnel → 전용 SSH → 기존 배포 작업 | Admin → API → Batch 실제 배포 성공 |
-| 개인 SSH | 본인 이메일 Access → 원본 JWT 검증 → 별도 SSH → 기존 개인 키 | 앱·경로 저장, 서비스 활성·자동 시작 확인; 외부 접속 인수 대기 |
-| Workbench | 로컬 SSH 포워드 → MySQL loopback | 내부 SSH 포워드의 MySQL handshake 확인; DB 계정 인증 대기 |
+| 개인 SSH | 본인 이메일 Access → 원본 JWT 검증 → 별도 SSH → 기존 개인 키 | 외부 명령 실행 성공, 금지 목적지·원격 포워딩 차단 확인 |
+| Workbench | 로컬 SSH 포워드 → MySQL loopback | 내부·외부 SSH 포워드의 MySQL handshake 확인; DB 계정 인증 대기 |
 
 API와 관리자의 사용자 로그인 확인은 공급자 미지정 사용자 인수입니다. Google·Kakao 각각의 신규 인증/만료/권한 실패 시험이 모두 끝났다는 뜻은 아닙니다.
 
@@ -53,7 +53,7 @@ SSH 포워드 터미널은 DB 작업 중 유지하고 종료 시 해당 터널�
 
 ## 남은 인수 · 운영 전환과 구분
 
-- [ ] 개인 Access 인증 후 외부 SSH 명령 실행·MySQL 포워드·금지 포워드 차단 확인
+- [x] 개인 Access 인증 후 외부 SSH 명령 실행·MySQL 포워드·금지 포워드 차단 확인
 - [ ] 운영자 Workbench Test Connection으로 DB 인증 확인
 - [ ] 공급자별 OAuth·권한/만료 세부 인수
 - [ ] 실제 대상 인증서의 staging 갱신 승인 및 검증
