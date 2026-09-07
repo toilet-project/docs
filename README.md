@@ -8,13 +8,18 @@
 
 ## 최신 작업 요약
 
+운영 API·관리자 및 세 제품의 실제 배포 연결을 Cloudflare Tunnel로 전환하고 공유기 교체 후 재연결을 확인했습니다. 개인 외부 SSH·MySQL 포워드 검증은 완료했고 Workbench GUI 및 복구·TLS·정리 후속 인수는 남아 있습니다. [Tunnel 접속·인수 가이드](operations/tunnel-access-runbook.md)와 [현재 아키텍처 v4](architecture/architecture-v4.md)를 참고하세요.
+
 행정구역 정규화는 설계 → 표본 검증 → 전수 분석 → 운영 적재 → 관리자 검토 → 실제 제보 승인·자동 재판정까지 확인했습니다. 다음 정기 배치의 확정 좌표·주소 보호 확인은 남아 있습니다. [관리자 검토 배포 보고서](operations/region-admin-review-release-2026-09-05.md)에서 최신 결과를 확인할 수 있습니다. 과거 보고서는 당시 시점의 기록이며, 상세 JSON·시설별 검토 목록은 비공개로 보존합니다.
 
 ## 문서 목록
 
 | 구분 | 문서 | 설명 |
 | --- | --- | --- |
-| 아키텍처 | [아키텍처 v3.0](architecture/architecture-v3.md) | Cloudflare·Mini PC·인증·배치까지 반영한 현재 운영 구조 |
+| 아키텍처 · 최신 | [아키텍처 v4.0](architecture/architecture-v4.md) | Workers/Next.js·웹 캐시·운영 Tunnel·개인/배포 SSH·공유기 전환 |
+| 아키텍처 · 이전 시점 | [아키텍처 v3.0](architecture/architecture-v3.md) | 2026-08-31 Pages/React 기준 기록 |
+| 운영 · Tunnel | [Tunnel 접속·인수 가이드](operations/tunnel-access-runbook.md) | 실제 배포·공유기 교체 결과, 개인 SSH/Workbench 및 남은 인수 |
+| 운영 · 마감 | [2026-09-07 후속 점검](operations/tunnel-followup-2026-09-07.md) | 오늘 검증·감시 보완 13건·백업 점검·남은 실행 순서 |
 | 운영 | [배포·운영 가이드](operations/deployment.md) | 도메인, HTTPS, 배포 및 비밀정보 원칙 |
 | 운영 | [운영 안정화 Runbook v1.1](operations/reliability-runbook.md) | 암호화 백업·복구, 재부팅 자동 점검, DB·OAuth 장애 알림 절차 |
 | 운영 | [DB 백업·복구 리허설](operations/backup-restore-rehearsal-2026-08-31.md) | 실제 운영 백업과 임시 복구 검증 결과 |
@@ -42,9 +47,9 @@
 | 기획 | [인증·권한 정책 및 데이터 모델 설계 v1.5](planning/authentication-authorization-design.md) | Google·Kakao 로그인, 정책 동의, USER/ADMIN 권한, JWT·Redis 세션·감사 로그 구현 기준 |
 | 기획 | [개인정보·서비스 약관 및 회원 동의 정책 v1.0](planning/privacy-policy-consent-v1.md) | 만 14세 이상, 정책 버전 동의, GPS 고지, 보유·파기·탈퇴 기준 |
 
-## 최신 아키텍처
+## 현재 아키텍처 (v4)
 
-![급똥 아키텍처 v3](architecture/assets/architecture-v3.svg)
+![급똥 아키텍처 v4](architecture/assets/architecture-v4.svg)
 
 ## 문서 추가 규칙
 
