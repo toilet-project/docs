@@ -56,7 +56,7 @@ MySQL은 서버 loopback/내부 네트워크로 접근하며 인터넷 공개 DB
 
 ## 5. 남은 검증
 
-TLS 실제 staging 갱신, Tunnel 감시 보완의 운영 설치/알림 인수, 공급자별 인증·세션 세부 검증, 다음 정기 배치 및 테스트 자원 정리를 남긴다. 테스트라는 이름이 붙은 공유 Tunnel도 운영 트래픽을 운반하므로 이름만 보고 삭제하지 않는다.
+TLS staging 갱신 종료0 및 운영 인증서/설정 불변, Tunnel·Nginx·ready 감시 설치와 Discord 시험1건 전달, 다음 5분 정기 건강 점검까지 확인했다. 공급자별 인증·세션 세부 검증, 다음 정기 배치, 실제 재부팅/복구 및 테스트 자원 정리는 남아 있다. 테스트라는 이름이 붙은 공유 Tunnel도 운영 트래픽을 운반하므로 이름만 보고 삭제하지 않는다.
 
 [접속·Workbench 인수](../operations/tunnel-access-runbook.md) · [총괄 WBS #73](https://github.com/toilet-project/docs/issues/73) · [운영 배포 #77](https://github.com/toilet-project/docs/issues/77) · [복구·감시 #78](https://github.com/toilet-project/docs/issues/78).
 
