@@ -56,6 +56,8 @@ MySQL은 서버 loopback/내부 네트워크로 접근하며 인터넷 공개 DB
 
 ## 5. 남은 검증
 
+2026-09-08 추가: 미니 PC와 별개인 GitHub-hosted runner가 공개 웹·API/DB health를 10분 간격으로 예약 점검한다. 신규/변경 장애·복구는 Discord로 전달하며 정상 유지에는 알리지 않는다. 예약 지연과 cache 유실 한계가 있고 실제 호스트 장애 주입을 수행한 것은 아니다. [인증 회귀·외부 감시 흐름과 근거](../operations/tunnel-safe-acceptance-2026-09-08.md).
+
 TLS staging 갱신 종료0·운영 인증서/설정 불변, 감시 설치·Discord 시험1건 전달, 수정 후 재부팅 자동 복귀와 첫 정기 건강 점검까지 확인했다. 시험 Secrets4개·서버 시험키1줄·시험 workflow/listener 및 Cloudflare 시험 경로/DNS4개·앱3개·전용 정책/토큰 정리도 완료했다. 공급자별 인증·세션 세부 검증, 다음 정기 배치와 실제 장애/구버전 복구는 남아 있다. 테스트라는 이름이 붙은 공유 Tunnel 자체는 운영 트래픽을 운반하므로 보존했다.
 
 [접속·Workbench 인수](../operations/tunnel-access-runbook.md) · [총괄 WBS #73](https://github.com/toilet-project/docs/issues/73) · [운영 배포 #77](https://github.com/toilet-project/docs/issues/77) · [복구·감시 #78](https://github.com/toilet-project/docs/issues/78).
