@@ -8,6 +8,8 @@
 
 ## 최신 작업 요약
 
+실제 파기 대장·독립 체크포인트를 정기 격리 복원 점검에 연결하고 설치 후 수동 실행을 확인했습니다. 대장 불일치·접속 실패·격리 자원 정리 실패 시 성공으로 처리하지 않습니다. **탈퇴·복구·자동 파기 활성화 및 과거 백업 삭제는 아직 별도 인수 항목**입니다. [정기 검증 설계](operations/restore-ledger-gate.md)와 [2026-09-08 검증 결과](operations/restore-ledger-verification-2026-09-08.md)를 참고하세요.
+
 운영 API·관리자 및 세 제품의 실제 배포 연결을 Cloudflare Tunnel로 전환하고 공유기 교체 후 재연결을 확인했습니다. 개인 외부 SSH·MySQL 포워드 검증은 완료했고 Workbench GUI 및 복구·TLS·정리 후속 인수는 남아 있습니다. [Tunnel 접속·인수 가이드](operations/tunnel-access-runbook.md)와 [현재 아키텍처 v4](architecture/architecture-v4.md)를 참고하세요.
 
 행정구역 정규화는 설계 → 표본 검증 → 전수 분석 → 운영 적재 → 관리자 검토 → 실제 제보 승인·자동 재판정까지 확인했습니다. 다음 정기 배치의 확정 좌표·주소 보호 확인은 남아 있습니다. [관리자 검토 배포 보고서](operations/region-admin-review-release-2026-09-05.md)에서 최신 결과를 확인할 수 있습니다. 과거 보고서는 당시 시점의 기록이며, 상세 JSON·시설별 검토 목록은 비공개로 보존합니다.
@@ -23,6 +25,8 @@
 | 운영 | [배포·운영 가이드](operations/deployment.md) | 도메인, HTTPS, 배포 및 비밀정보 원칙 |
 | 운영 | [운영 안정화 Runbook v1.1](operations/reliability-runbook.md) | 암호화 백업·복구, 재부팅 자동 점검, DB·OAuth 장애 알림 절차 |
 | 운영 | [DB 백업·복구 리허설](operations/backup-restore-rehearsal-2026-08-31.md) | 실제 운영 백업과 임시 복구 검증 결과 |
+| 운영 · 파기 대장 | [정기 격리 복원 검증 설계](operations/restore-ledger-gate.md) | 실제 대장·독립 기록 대조, 격리 재삭제, 실패 시 성공 차단 |
+| 운영 · 검증 인수 | [2026-09-08 실제 대장 복원 검증](operations/restore-ledger-verification-2026-09-08.md) | 준비 배포·가상 계정 시험·정기 점검 연결과 남은 인수 구분 |
 | API | [Toilet API 명세](api/toilet-api.md) | 공개 지도·인증·제보·관리자 API 계약 |
 | DB | [기본 데이터 모델 v1.7](database/database-schema-v1.7.md) | 정책 버전·사용자 동의·탈퇴 모델. 이후 변경은 v1.8~v1.10 참조 |
 | DB | [행정구역 정규화 v1.8](database/administrative-region-normalization-v1.8.md) | 좌표 기반 행정구역·주소 교차검증·안전한 분할 실행 |
