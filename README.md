@@ -19,6 +19,7 @@ Tunnel 전환·공유기 교체·Workbench·TLS·시험 자원 정리는 인수 
 | 구분 | 문서 | 설명 |
 | --- | --- | --- |
 | 운영 · 현재 기준 | [계정 수명주기 / LOCAL 보호](operations/account-lifecycle-current-2026-09-10.md) | 실제 활성화·개인정보/업무 이력 경계·백업·남은 테스트 |
+| 운영 · 최종 인수 | [탈퇴 시험·사본·키 후속 절차](operations/account-acceptance-and-key-lifecycle-2026-09-10.md) | 지정 실계정 인수 순서·실제 토큰 만료 확인·교체/규모 계획 |
 | 관리 · 전체 점검 | [WBS 전체 점검표](operations/wbs-audit-2026-09-10.md) | 80개 항목, 변경·철회 계획, 완료/미완료 판정 근거 |
 | DB · 계정 | [회원 탈퇴·복구 V11](database/account-withdrawal-retention-v1.11.md) | 운영 적용된 필드·테이블·인덱스·파기 범위 |
 | 웹 · 전환 기록 | [Next.js Workers 전환](operations/nextjs-workers-production-2026-09-06.md) | 9/6 운영 전환·SEO·캐시·시험 근거 |
