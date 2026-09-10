@@ -8,14 +8,21 @@
 
 ## 최신 작업 요약
 
-운영 API·관리자 및 세 제품의 실제 배포 연결을 Cloudflare Tunnel로 전환하고 공유기 교체 후 재연결을 확인했습니다. 개인 외부 SSH·MySQL 포워드 검증은 완료했고 Workbench GUI 및 복구·TLS·정리 후속 인수는 남아 있습니다. [Tunnel 접속·인수 가이드](operations/tunnel-access-runbook.md)와 [현재 아키텍처 v4](architecture/architecture-v4.md)를 참고하세요.
+**2026-09-10 기준: 탈퇴·선택 보관·계정 복구와 후속 파기 배치를 운영 활성화했습니다.** 회원별 재생 방지 기록은 국내 서버의 별도 암호화 파일(LOCAL)에 저장합니다. R2는 현재 프론트 캐시에 사용하며, 과거 회원 대장 R2 준비안과 구분합니다. [최신 계정 구조·정책·배포 결과](operations/account-lifecycle-current-2026-09-10.md)와 [전체 WBS 점검표](operations/wbs-audit-2026-09-10.md)를 먼저 읽어 주세요.
 
-행정구역 정규화는 설계 → 표본 검증 → 전수 분석 → 운영 적재 → 관리자 검토 → 실제 제보 승인·자동 재판정까지 확인했습니다. 다음 정기 배치의 확정 좌표·주소 보호 확인은 남아 있습니다. [관리자 검토 배포 보고서](operations/region-admin-review-release-2026-09-05.md)에서 최신 결과를 확인할 수 있습니다. 과거 보고서는 당시 시점의 기록이며, 상세 JSON·시설별 검토 목록은 비공개로 보존합니다.
+Tunnel 전환·공유기 교체·Workbench·TLS·시험 자원 정리는 인수 완료했습니다. 전환 후 9월 10일 02시 배치와 03:15 백업·03:35 격리 복원·04:15 점검, 실제 GitHub 예약 감시 성공도 확인했습니다. 이는 같은 날 18시 활성화한 회원 파기의 첫 정기 실행을 뜻하지 않습니다. 실제 장애 주입은 수행하지 않았으며 별도 후속 범위입니다.
+
+행정구역 정규화는 설계 → 표본 검증 → 전수 분석 → 운영 적재 → 관리자 검토 → 실제 제보 승인·자동 재판정까지 확인했습니다. 관리자 확정 시설이 실제 수신된 실행에서의 좌표·주소 보호 증명은 남아 있습니다. 단순한 다음 배치 성공으로 대신하지 않습니다. [관리자 검토 배포 보고서](operations/region-admin-review-release-2026-09-05.md)는 당시 기록이며, 상세 JSON·시설별 검토 목록은 비공개로 보존합니다.
 
 ## 문서 목록
 
 | 구분 | 문서 | 설명 |
 | --- | --- | --- |
+| 운영 · 현재 기준 | [계정 수명주기 / LOCAL 보호](operations/account-lifecycle-current-2026-09-10.md) | 실제 활성화·개인정보/업무 이력 경계·백업·남은 테스트 |
+| 관리 · 전체 점검 | [WBS 전체 점검표](operations/wbs-audit-2026-09-10.md) | 80개 항목, 변경·철회 계획, 완료/미완료 판정 근거 |
+| DB · 계정 | [회원 탈퇴·복구 V11](database/account-withdrawal-retention-v1.11.md) | 운영 적용된 필드·테이블·인덱스·파기 범위 |
+| 웹 · 전환 기록 | [Next.js Workers 전환](operations/nextjs-workers-production-2026-09-06.md) | 9/6 운영 전환·SEO·캐시·시험 근거 |
+| 웹 · 감시 기록 | [Workers 오류 감시](operations/worker-error-monitoring.md) | 기존 표본 감시·Discord·한계, 당시 설치 기록 |
 | 아키텍처 · 최신 | [아키텍처 v4.0](architecture/architecture-v4.md) | Workers/Next.js·웹 캐시·운영 Tunnel·개인/배포 SSH·공유기 전환 |
 | 아키텍처 · 이전 시점 | [아키텍처 v3.0](architecture/architecture-v3.md) | 2026-08-31 Pages/React 기준 기록 |
 | 운영 · Tunnel | [Tunnel 접속·인수 가이드](operations/tunnel-access-runbook.md) | 실제 배포·공유기 교체 결과, 개인 SSH/Workbench 및 남은 인수 |
@@ -24,7 +31,7 @@
 | 운영 | [운영 안정화 Runbook v1.1](operations/reliability-runbook.md) | 암호화 백업·복구, 재부팅 자동 점검, DB·OAuth 장애 알림 절차 |
 | 운영 | [DB 백업·복구 리허설](operations/backup-restore-rehearsal-2026-08-31.md) | 실제 운영 백업과 임시 복구 검증 결과 |
 | API | [Toilet API 명세](api/toilet-api.md) | 공개 지도·인증·제보·관리자 API 계약 |
-| DB | [기본 데이터 모델 v1.7](database/database-schema-v1.7.md) | 정책 버전·사용자 동의·탈퇴 모델. 이후 변경은 v1.8~v1.10 참조 |
+| DB | [기본 데이터 모델 v1.7](database/database-schema-v1.7.md) | 정책 버전·사용자 동의·탈퇴 모델. 이후 변경은 v1.8~v1.11 참조 |
 | DB | [행정구역 정규화 v1.8](database/administrative-region-normalization-v1.8.md) | 좌표 기반 행정구역·주소 교차검증·안전한 분할 실행 |
 | DB | [좌표 확정 주소 분리 v1.9](database/coordinate-address-fields-v1.9.md) | 위치 제보·관리자 확정의 도로명/지번 저장, DDL·복구 절차 |
 | DB | [자동 재검증·수동 확인 이력 v1.10](database/region-assessment-history-v1.10.md) | 추가 주소 검증·50m 기준·판정 근거 보존·판정 근거·관리자 검토 연결 |
@@ -50,6 +57,10 @@
 ## 현재 아키텍처 (v4)
 
 ![급똥 아키텍처 v4](architecture/assets/architecture-v4.svg)
+
+네트워크 전체 구조는 v4, 회원정보 처리의 현재 연결과 상태는 아래 보완도를 따릅니다. 날짜가 지난 보고서의 OFF·R2·미배포 문구는 당시 기록입니다.
+
+![현재 회원정보 처리와 복원 보호](architecture/assets/account-lifecycle-current-20260910.svg)
 
 ## 문서 추가 규칙
 
