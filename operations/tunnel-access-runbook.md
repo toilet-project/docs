@@ -1,5 +1,7 @@
 # Cloudflare Tunnel 운영 접속 인수 · 2026-09-07
 
+> **2026-09-10 인수 갱신:** 이 문서의 접속 방법은 유지한다. 이후 Workbench·인증·정기 배치/백업/복원/외부 예약 감시까지 확인해 Tunnel WBS #73/#77/#78을 마감했다. [최신 판정](wbs-audit-2026-09-10.md) 참조. API/batch 이미지 교체는 [현재 상태 보존 배포 절차](account-lifecycle-current-2026-09-10.md)를 따르며, 과거 paused 전용 workflow로 되돌리지 않는다.
+
 ## 현재 상태
 
 운영 API·관리자 트래픽과 API/Batch/Admin의 실제 배포 연결을 Tunnel로 전환했습니다. 이후 공유기 교체로 내부망 대역이 변경되어도 Tunnel이 재연결되는 것을 확인했습니다. **개인 외부 SSH·Workbench는 앱/경로 설치와 최종 사용자 접속 검증을 구분합니다.**
