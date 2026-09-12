@@ -19,6 +19,16 @@ REMINDER = 3600
 DISCORD_USER_AGENT = 'DiscordBot (https://github.com/toilet-project/docs, 1.0)'
 
 
+def api_health_ok(body):
+    # Keep the previous exact response during rollout and image rollback.
+    if body == 'API server is running (DB: toilet_db)':
+        return True
+    try:
+        return json.loads(body) == {'status': 'UP'}
+    except (ValueError, TypeError):
+        return False
+
+
 def classify(target, status, headers, body):
     if headers.get('cf-mitigated') or status in (401, 403):
         return 'ACCESS_BLOCKED'  # Never retry with a different identity or bypass a challenge.
@@ -28,7 +38,7 @@ def classify(target, status, headers, body):
         if (headers.get('cf-cache-status', '').upper() in {'HIT', 'STALE', 'UPDATING', 'REVALIDATED'}
                 or headers.get('age', '0') != '0' or 'no-store' not in headers.get('cache-control', '').lower()):
             return 'CACHED_HEALTH'
-        if body.strip() != 'API server is running (DB: toilet_db)':
+        if not api_health_ok(body.strip()):
             return 'CONTENT'
     elif 'text/html' not in headers.get('content-type', '').lower():
         return 'CONTENT'
