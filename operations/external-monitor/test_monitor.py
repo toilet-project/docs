@@ -26,6 +26,17 @@ class Classification(unittest.TestCase):
     def test_api_live_db_health(self):
         self.assertEqual(m.classify('api', 200, HEADERS, HEALTH), 'OK')
 
+    def test_minimal_json_health_and_failure_contract(self):
+        self.assertEqual(m.classify('api', 200, HEADERS, '{"status":"UP"}'), 'OK')
+        self.assertEqual(m.classify('api', 200, HEADERS, '{ "status": "UP" }'), 'OK')
+        for body in ('{"status":"DOWN"}', '{"status":"UP","detail":"unexpected"}',
+                     '[]', '{}', 'null', 'UP', '<html>UP</html>', 'API database connection failed: synthetic'):
+            with self.subTest(body=body):
+                self.assertEqual(m.classify('api', 200, HEADERS, body), 'CONTENT')
+        self.assertEqual(m.classify('api', 503, HEADERS, '{"status":"UP"}'), 'HTTP_ERROR')
+        self.assertEqual(m.classify('api', 200, dict(HEADERS, **{'cf-cache-status': 'HIT'}),
+                                    '{"status":"UP"}'), 'CACHED_HEALTH')
+
     def test_api_requires_db_body(self):
         self.assertEqual(m.classify('api', 200, HEADERS, 'OK'), 'CONTENT')
 

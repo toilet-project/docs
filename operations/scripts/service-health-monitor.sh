@@ -26,6 +26,28 @@ check_http_body() {
   fi
 }
 
+check_api_health() {
+  local label="$1" url="$2" body
+  if ! body="$(curl -fsS --max-time 15 "$url" 2>/dev/null)"; then
+    add_failure "$label 응답 실패"
+    return
+  fi
+  # Both successful formats remain valid while old/new images can be rolled back.
+  if ! printf '%s' "$body" | python3 -c '
+import json, sys
+body = sys.stdin.read()
+if body == "API server is running (DB: toilet_db)":
+    sys.exit(0)
+try:
+    healthy = json.loads(body) == {"status": "UP"}
+except ValueError:
+    healthy = False
+sys.exit(0 if healthy else 1)
+'; then
+    add_failure "$label 응답 내용 불일치"
+  fi
+}
+
 check_oauth_redirect() {
   local label="$1" url="$2" expected_host="$3" headers
   if ! headers="$(curl -sS -D - -o /dev/null --max-time 15 "$url" 2>/dev/null)"; then
@@ -59,9 +81,9 @@ if [[ "$redis_health" != "healthy" ]]; then
   add_failure "toilet-redis 상태 $redis_health"
 fi
 
-check_http_body "내부 API·DB" "http://127.0.0.1:8085/api/health" "DB: toilet_db"
+check_api_health "내부 API·DB" "http://127.0.0.1:8085/api/health"
 check_http_body "내부 관리자 API" "http://127.0.0.1:8089/actuator/health" '"status":"UP"'
-check_http_body "외부 API·DB" "https://api.geupddong.com/api/health" "DB: toilet_db"
+check_api_health "외부 API·DB" "https://api.geupddong.com/api/health"
 check_oauth_redirect "Google" "https://api.geupddong.com/oauth2/authorization/google" "accounts.google.com"
 check_oauth_redirect "Kakao" "https://api.geupddong.com/oauth2/authorization/kakao" "kauth.kakao.com"
 

@@ -2,9 +2,9 @@ name: External monitor safety tests
 on:
   push:
     branches: [feature/independent-external-monitor, main]
-    paths: ['operations/external-monitor/**', '.github/workflows/external-*.yml']
+    paths: ['operations/external-monitor/**', 'operations/scripts/service-health-monitor.sh', '.github/workflows/external-*.yml']
   pull_request:
-    paths: ['operations/external-monitor/**', '.github/workflows/external-*.yml']
+    paths: ['operations/external-monitor/**', 'operations/scripts/service-health-monitor.sh', '.github/workflows/external-*.yml']
 permissions:
   contents: read
 jobs:
