@@ -19,6 +19,7 @@ Tunnel 전환·공유기 교체·Workbench·TLS·시험 자원 정리는 인수 
 | 구분 | 문서 | 설명 |
 | --- | --- | --- |
 | 아키텍처 · 캐시 전환안 | [화장실 상세 캐시·사전 생성·정리](architecture/toilet-detail-cache-platform.md) | 전체 공개 상세 URL 사전 생성, 배포 독립 데이터, revision 갱신, 안전한 구버전 정리. 운영 미적용 |
+| 운영 · 수집 시작 | [Google Analytics 수집·운영 대시보드](planning/google-analytics-admin-dashboard.md) | 동의 기반 공개 웹 수집, Data API 집계 캐시, 관리자 홈·상세 지표. 최초 실데이터 확인 대기 |
 | 기획 · 신규 검토 기능 | [공공데이터 변경 후보·관리자 비교 반영](planning/public-data-change-review.md) | 확정 좌표·주소 보호, 변경 후보·수신 증빙 DB, 관리자 결정 흐름. 계획 단계·운영 미적용 |
 | 운영 · 현재 기준 | [계정 수명주기 / LOCAL 보호](operations/account-lifecycle-current-2026-09-10.md) | 실제 활성화·개인정보/업무 이력 경계·백업·남은 테스트 |
 | 운영 · 최종 인수 | [탈퇴 시험·사본·키 후속 절차](operations/account-acceptance-and-key-lifecycle-2026-09-10.md) | 지정 실계정 인수 순서·실제 토큰 만료 확인·교체/규모 계획 |
