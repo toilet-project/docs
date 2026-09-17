@@ -1,5 +1,7 @@
 # 개인정보·서비스 약관 및 회원 동의 정책 v1.0
 
+> **초기 정책 설계 기록입니다.** 이후 [계정 정책](../operations/account-lifecycle-current-2026-09-10.md), [리뷰 작성자 연결 해제·보존 고지](../api/location-reviews.md), [자체 분석 전환](service-analytics.md)이 추가되었습니다. 이 문서만으로 현재 공개 정책 전체를 판단하지 않습니다.
+
 > 기준일: 2026-09-01 · 운영 주체: 급똥(개인 운영 서비스) · 문의: `privacy@geupddong.com`
 
 ## 1. 적용 범위와 결정

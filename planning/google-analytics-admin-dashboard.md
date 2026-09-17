@@ -1,5 +1,7 @@
 # Google Analytics 수집·운영 대시보드
 
+> **과거 설계 / 현재 사용하지 않음.** 2026-09-17 기준 GA와 Google Data API를 제거하고 [자체 서비스 이용 분석](service-analytics.md)으로 전환했습니다. 아래 “구현 중”과 설정 절차는 9/15 당시 기록이며 재설치 지침이 아닙니다.
+
 > WBS: [DOCS #102](https://github.com/toilet-project/docs/issues/102) · 기준일: 2026-09-15 KST · 단계: 구현 중
 
 ## 1. 목적과 운영 질문

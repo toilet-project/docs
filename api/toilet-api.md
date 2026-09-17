@@ -1,5 +1,7 @@
 # 📄 REST API Specification
 
+> 2026-09-17 보완: 이 문서는 기존 지도·인증·제보 계약입니다. 새 [리뷰 API](location-reviews.md), [중복 시설·변경 검토](../database/duplicate-facility-management.md), [자체 분석](../planning/service-analytics.md)을 함께 확인하세요. 숨김 시설은 공개 목록·상세·사이트맵에서 제외하며 공개 상세 API는 404입니다.
+
 > 운영 Base URL: `https://api.geupddong.com`
 > 지도 영역 조회는 2026-08부터 줌 레벨에 따라 개별 마커 또는 서버 클러스터를 반환하는 v2 응답을 사용합니다.
 

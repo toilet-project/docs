@@ -1,76 +1,66 @@
-# 📚 급똥 프로젝트 문서
+# 📚 급똥 · 설계와 운영 문서
 
-급똥 서비스의 요구사항, API·DB 명세, 아키텍처, 운영 가이드를 관리하는 문서 저장소입니다. 문서는 도메인별 폴더로 관리하며, 새 문서는 아래 분류에 맞춰 추가합니다.
+**공공데이터를 수집하는 지도에서, 사용자 참여와 관리자 검토로 품질을 개선하는 서비스로.**
 
-| 운영 서비스 | Public API | 프로젝트 관리 |
+[서비스 열기](https://geupddong.com) · [프로젝트 소개](https://github.com/toilet-project) · [WBS](https://github.com/orgs/toilet-project/projects/2/views/2) · [변경 이력](changelog/CHANGELOG.md)
+
+## 처음 오셨다면
+
+| 알고 싶은 것 | 먼저 읽을 문서 |
+| --- | --- |
+| 지금 무엇을 운영하고 있나요? | [현재 기능·운영 상태](operations/current-state-2026-09-17.md) |
+| 시스템은 어떻게 연결되나요? | [운영 아키텍처 v5](architecture/architecture-v5.md) |
+| 어떤 문제를 어떻게 해결했나요? | [프로젝트 포트폴리오](https://github.com/toilet-project) · [중복 시설·변경 검토](database/duplicate-facility-management.md) |
+| 데이터와 API의 기준은 무엇인가요? | [현재 스키마 안내](database/current-schema.md) · [리뷰 API·정책](api/location-reviews.md) · [기본 API](api/toilet-api.md) |
+| 어떻게 배포하고 점검하나요? | [배포·운영 가이드](operations/deployment.md) · [장애 대응](operations/reliability-runbook.md) |
+
+## 현재 운영 · 2026-09-17
+
+| 영역 | 반영된 기능 | 자세히 보기 |
 | --- | --- | --- |
-| [geupddong.com](https://geupddong.com) | [api.geupddong.com](https://api.geupddong.com) | [WBS](https://github.com/orgs/toilet-project/projects/2/views/2) |
+| 사용자 웹 | Next.js·Workers, 지도 탐색, Google·Kakao 로그인, 제보·알림, 현장 리뷰와 내 리뷰 관리 | [현재 상태](operations/current-state-2026-09-17.md) |
+| 데이터 품질 | 행정구역 검토, 공공데이터 변경 비교, 중복 이름·좌표 비교, 대표 지정·선택 숨김 | [시설 관리 정책](database/duplicate-facility-management.md) |
+| 서비스 분석 | GA 제거, 자체 이벤트 수집·기간별 방문자 추정·KST 집계 | [수집 범위와 한계](planning/service-analytics.md) |
+| 상세 캐시 | 배포 독립 공유 데이터, 변경 이벤트 갱신, 28일 순환 갱신·보호 조건부 퇴역 캐시 정리 | [캐시 운영](architecture/toilet-detail-cache-platform.md) |
+| 계정 보호 | 탈퇴·선택 보관·복구·후속 파기, 국내 LOCAL 보호 기록 | [계정 수명주기](operations/account-lifecycle-current-2026-09-10.md) |
 
-## 최신 작업 요약
+구현 완료와 자연 운영 관측은 구분합니다. 실제 공공데이터 변경 수신·확정 값 보존 관측은 [10월 초 점검](https://github.com/toilet-project/docs/issues/95), 사본 만료 관측은 [후속 인수](https://github.com/toilet-project/docs/issues/94)에서 추적합니다. 전체 서비스 자동 복구는 현재 제공 기능이 아닙니다.
 
-**2026-09-10 기준: 탈퇴·선택 보관·계정 복구와 후속 파기 배치를 운영 활성화했습니다.** 회원별 재생 방지 기록은 국내 서버의 별도 암호화 파일(LOCAL)에 저장합니다. R2는 현재 프론트 캐시에 사용하며, 과거 회원 대장 R2 준비안과 구분합니다. [최신 계정 구조·정책·배포 결과](operations/account-lifecycle-current-2026-09-10.md)와 [전체 WBS 점검표](operations/wbs-audit-2026-09-10.md)를 먼저 읽어 주세요.
+## 시스템 한눈에 보기
 
-Tunnel 전환·공유기 교체·Workbench·TLS·시험 자원 정리는 인수 완료했습니다. 전환 후 9월 10일 02시 배치와 03:15 백업·03:35 격리 복원·04:15 점검, 실제 GitHub 예약 감시 성공도 확인했습니다. 이는 같은 날 18시 활성화한 회원 파기의 첫 정기 실행을 뜻하지 않습니다. 실제 장애 주입은 수행하지 않았으며 별도 후속 범위입니다.
+![급똥 운영 아키텍처 v5](architecture/assets/architecture-v5.svg)
 
-행정구역 정규화는 설계 → 표본 검증 → 전수 분석 → 운영 적재 → 관리자 검토 → 실제 제보 승인·자동 재판정까지 확인했습니다. 관리자 확정 시설이 실제 수신된 실행에서의 좌표·주소 보호 증명은 남아 있습니다. 단순한 다음 배치 성공으로 대신하지 않습니다. [관리자 검토 배포 보고서](operations/region-admin-review-release-2026-09-05.md)는 당시 기록이며, 상세 JSON·시설별 검토 목록은 비공개로 보존합니다.
+## 주제별 문서
 
-## 문서 목록
+| 주제 | 문서 |
+| --- | --- |
+| 아키텍처·성능 | [현재 아키텍처](architecture/architecture-v5.md) · [상세 캐시·갱신·정리](architecture/toilet-detail-cache-platform.md) |
+| API·리뷰 | [기본 API 계약](api/toilet-api.md) · [리뷰 작성·조회·관리](api/location-reviews.md) |
+| DB·데이터 품질 | [스키마 변경 지도](database/current-schema.md) · [중복 시설·변경 검토](database/duplicate-facility-management.md) · [좌표 품질 관리](database/duplicate-coordinate-quality.md) |
+| 지역·주소 | [행정구역 정규화](database/administrative-region-normalization-v1.8.md) · [확정 주소 분리](database/coordinate-address-fields-v1.9.md) · [재판정 이력](database/region-assessment-history-v1.10.md) |
+| 인증·회원 | [인증·권한 설계](planning/authentication-authorization-design.md) · [회원 모델 V11](database/account-withdrawal-retention-v1.11.md) · [현재 계정 운영](operations/account-lifecycle-current-2026-09-10.md) |
+| 분석·정책 | [자체 서비스 이용 분석](planning/service-analytics.md) · [리뷰 보존·작성자 연결 해제](api/location-reviews.md#작성자-연결-해제와-보존) |
+| 배포·복구 | [배포 가이드](operations/deployment.md) · [Tunnel 접속](operations/tunnel-access-runbook.md) · [안정화 Runbook](operations/reliability-runbook.md) · [키·인수 절차](operations/account-acceptance-and-key-lifecycle-2026-09-10.md) |
 
-| 구분 | 문서 | 설명 |
-| --- | --- | --- |
-| 아키텍처 · 캐시 전환안 | [화장실 상세 캐시·사전 생성·정리](architecture/toilet-detail-cache-platform.md) | 전체 공개 상세 URL 사전 생성, 배포 독립 데이터, revision 갱신, 안전한 구버전 정리. 운영 미적용 |
-| 운영 · 수집 시작 | [Google Analytics 수집·운영 대시보드](planning/google-analytics-admin-dashboard.md) | 동의 기반 공개 웹 수집, Data API 집계 캐시, 관리자 홈·상세 지표. 최초 실데이터 확인 대기 |
-| 기획 · 신규 검토 기능 | [공공데이터 변경 후보·관리자 비교 반영](planning/public-data-change-review.md) | 확정 좌표·주소 보호, 변경 후보·수신 증빙 DB, 관리자 결정 흐름. 계획 단계·운영 미적용 |
-| 운영 · 현재 기준 | [계정 수명주기 / LOCAL 보호](operations/account-lifecycle-current-2026-09-10.md) | 실제 활성화·개인정보/업무 이력 경계·백업·남은 테스트 |
-| 운영 · 최종 인수 | [탈퇴 시험·사본·키 후속 절차](operations/account-acceptance-and-key-lifecycle-2026-09-10.md) | 지정 실계정 인수 순서·실제 토큰 만료 확인·교체/규모 계획 |
-| 관리 · 전체 점검 | [WBS 전체 점검표](operations/wbs-audit-2026-09-10.md) | 80개 항목, 변경·철회 계획, 완료/미완료 판정 근거 |
-| DB · 계정 | [회원 탈퇴·복구 V11](database/account-withdrawal-retention-v1.11.md) | 운영 적용된 필드·테이블·인덱스·파기 범위 |
-| 웹 · 전환 기록 | [Next.js Workers 전환](operations/nextjs-workers-production-2026-09-06.md) | 9/6 운영 전환·SEO·캐시·시험 근거 |
-| 웹 · 감시 기록 | [Workers 오류 감시](operations/worker-error-monitoring.md) | 기존 표본 감시·Discord·한계, 당시 설치 기록 |
-| 아키텍처 · 최신 | [아키텍처 v4.0](architecture/architecture-v4.md) | Workers/Next.js·웹 캐시·운영 Tunnel·개인/배포 SSH·공유기 전환 |
-| 아키텍처 · 이전 시점 | [아키텍처 v3.0](architecture/architecture-v3.md) | 2026-08-31 Pages/React 기준 기록 |
-| 운영 · Tunnel | [Tunnel 접속·인수 가이드](operations/tunnel-access-runbook.md) | 실제 배포·공유기 교체 결과, 개인 SSH/Workbench 및 남은 인수 |
-| 운영 · 마감 | [2026-09-07 후속 점검](operations/tunnel-followup-2026-09-07.md) | 오늘 검증·감시 보완 13건·백업 점검·남은 실행 순서 |
-| 운영 | [배포·운영 가이드](operations/deployment.md) | 도메인, HTTPS, 배포 및 비밀정보 원칙 |
-| 운영 | [운영 안정화 Runbook v1.1](operations/reliability-runbook.md) | 암호화 백업·복구, 재부팅 자동 점검, DB·OAuth 장애 알림 절차 |
-| 운영 | [DB 백업·복구 리허설](operations/backup-restore-rehearsal-2026-08-31.md) | 실제 운영 백업과 임시 복구 검증 결과 |
-| API | [Toilet API 명세](api/toilet-api.md) | 공개 지도·인증·제보·관리자 API 계약 |
-| DB | [기본 데이터 모델 v1.7](database/database-schema-v1.7.md) | 정책 버전·사용자 동의·탈퇴 모델. 이후 변경은 v1.8~v1.11 참조 |
-| DB | [행정구역 정규화 v1.8](database/administrative-region-normalization-v1.8.md) | 좌표 기반 행정구역·주소 교차검증·안전한 분할 실행 |
-| DB | [좌표 확정 주소 분리 v1.9](database/coordinate-address-fields-v1.9.md) | 위치 제보·관리자 확정의 도로명/지번 저장, DDL·복구 절차 |
-| DB | [자동 재검증·수동 확인 이력 v1.10](database/region-assessment-history-v1.10.md) | 추가 주소 검증·50m 기준·판정 근거 보존·판정 근거·관리자 검토 연결 |
-| 운영 · 최신 | [관리자 검토 배포 보고서](operations/region-admin-review-release-2026-09-05.md) | 검토 API·지도 보정·권한·테스트·남은 E2E |
-| 운영 · 적재 | [행정구역 운영 반영 결과](operations/region-production-result-2026-09-05.md) | API·배치 배포, 백업 복원, 실제 적재, 자동 갱신 검증 |
-| 운영 · 회귀 검증 | [자동 재검증 v2 결과](operations/region-recheck-v2-review-2026-09-04.md) | 기록 응답 1,000건 재현: 991 자동·9 수동, 당시 테스트 기록 |
-| 운영 · 전체 검증 완료 | [전수 분석 최종 보고서](operations/region-full-final-review-2026-09-05.md) | 최신 52,294건 분석·51,985건 통과·309건 검토·좌표 누락 1,288건 |
-| 운영 · 검토 목록 | [수동 검토 309건](operations/region-full-manual-review-2026-09-05.md) | 사유별 집계·처리 원칙, 상세 원문 비공개 |
-| 운영 · 실행 절차 | [DB 반영 코드·DDL 실행안](operations/region-production-apply-plan-2026-09-05.md) | 외부 호출 없는 replay·백업·migration·재개·롤백 |
-| 운영 · DB 검증 | [V8~V10 실제 MySQL 검증](operations/region-mysql-v10-validation-2026-09-04.md) | 격리 MySQL 순차 DDL·원본 보존·인덱스·복구 검증, 전체 분석 준비 |
-| 운영 · 검증 | [주소 분리 저장 검증](operations/coordinate-address-fields-review-2026-09-04.md) | API/배치 자동 테스트·화면 호환·운영 적용 전 확인 사항 |
-| 운영 · 초기 검증 | [행정구역 정규화 검증 결과](operations/region-normalization-review-2026-09-04.md) | DB 현황·자동 테스트·운영 표본 분석·남은 승인 사항 |
-| 운영 · 표본 검증 | [실제 Kakao API 84건 분석](operations/region-normalization-sample-2026-09-04.md) | 67건 지역 일치·17건 검토 대상, 재개 및 원본 보존 확인 |
-| 운영 · 무작위 검증 | [1,000건 자동·수동 처리 판단](operations/region-normalization-random1000-2026-09-04.md) | 963건 일치·28건 자동 재검증 후보·9건 수동 우선 확인, 원본 변경 없음 |
-| DB | [Toilet 테이블 명세](database/toilet-table.md) | 공공데이터·좌표 정책을 포함한 화장실 원천 데이터 |
-| DB | [사용자 제보·좌표·개방시간 승인 모델 v1.4](database/user-report-coordinate-model.md) | 제보 상태 전이, 확정 좌표·주소 이력 및 적용 DDL |
-| DB | [중복 좌표 데이터 품질 관리](database/duplicate-coordinate-quality.md) | 동일 좌표 그룹 확인, 직접 보정, 이력·배치 보호 정책 |
-| 변경 이력 | [문서 변경 이력](changelog/CHANGELOG.md) | 스키마·아키텍처 등 주요 문서 변경 기록 |
-| 기획 | [요구사항 정의서](planning/requirements.md) | 서비스 목표와 향후 확장 범위 |
-| 기획 | [인증·권한 정책 및 데이터 모델 설계 v1.5](planning/authentication-authorization-design.md) | Google·Kakao 로그인, 정책 동의, USER/ADMIN 권한, JWT·Redis 세션·감사 로그 구현 기준 |
-| 기획 | [개인정보·서비스 약관 및 회원 동의 정책 v1.0](planning/privacy-policy-consent-v1.md) | 만 14세 이상, 정책 버전 동의, GPS 고지, 보유·파기·탈퇴 기준 |
+<details>
+<summary><b>과거 설계·검증 기록 찾기</b></summary>
 
-## 현재 아키텍처 (v4)
+아래 문서는 해당 날짜의 설계와 시험 결과를 보존합니다. 당시의 “계획·미배포·OFF”를 현재 운영 상태로 해석하지 않습니다.
 
-![급똥 아키텍처 v4](architecture/assets/architecture-v4.svg)
+- 아키텍처: [v2](architecture/architecture-v2.md) · [v3 / Pages 시점](architecture/architecture-v3.md) · [v4 / Tunnel 전환](architecture/architecture-v4.md).
+- 초기 모델: [DB v1.7](database/database-schema-v1.7.md) · [Toilet 테이블](database/toilet-table.md) · [제보·좌표 승인](database/user-report-coordinate-model.md).
+- 기획: [요구사항](planning/requirements.md) · [공공데이터 변경 검토 초기안](planning/public-data-change-review.md) · [폐기된 GA 설계](planning/google-analytics-admin-dashboard.md) · [초기 동의 정책](planning/privacy-policy-consent-v1.md).
+- 전환·점검: [Next.js 전환](operations/nextjs-workers-production-2026-09-06.md) · [Tunnel 후속](operations/tunnel-followup-2026-09-07.md) · [9/10 WBS 감사](operations/wbs-audit-2026-09-10.md) · [Workers 감시](operations/worker-error-monitoring.md).
+- 데이터 검증: [운영 반영](operations/region-production-result-2026-09-05.md) · [전체 분석](operations/region-full-final-review-2026-09-05.md) · [관리자 인수](operations/region-admin-review-release-2026-09-05.md).
+- 추가 표본·SQL·복원 시험 기록은 [operations 디렉터리](operations/)에서 날짜별로 찾을 수 있습니다.
 
-네트워크 전체 구조는 v4, 회원정보 처리의 현재 연결과 상태는 아래 보완도를 따릅니다. 날짜가 지난 보고서의 OFF·R2·미배포 문구는 당시 기록입니다.
+</details>
 
-![현재 회원정보 처리와 복원 보호](architecture/assets/account-lifecycle-current-20260910.svg)
+## 문서 작성 기준
 
-## 문서 추가 규칙
-
-- 아키텍처 자료와 원본 다이어그램은 `architecture/`에 둡니다.
-- 스키마·DDL·데이터 정책은 `database/`에 둡니다.
-- 외부·내부 API 계약은 `api/`에 둡니다.
-- 배포·보안·장애 대응은 `operations/`에 둡니다.
-- 요구사항·의사결정 기록은 `planning/`에 둡니다.
-- 서비스 동작에 영향을 주는 확정 변경은 `changelog/CHANGELOG.md`에 최신순으로 추가합니다.
+- **결론 → 사용자에게 달라진 점 → 확인 결과 → 남은 일** 순서로 씁니다. 긴 커밋·실행 번호 나열 대신 설명 있는 근거 링크를 사용합니다.
+- 운영 반영, 시험 통과, 계획, 자연 관측 대기를 구분하고 기준일을 표시합니다. 과거 결과를 소급해 고치지 않습니다.
+- 아키텍처는 `architecture/`, 데이터 모델은 `database/`, API는 `api/`, 운영은 `operations/`, 의사결정은 `planning/`에 둡니다.
+- 실행 가능한 DDL·API 계약은 제품 저장소 소스를 기준으로 확인합니다. 문서의 예시를 운영에 바로 실행하지 않습니다.
+- 공개 문서에는 비밀값·내부 접속 정보·회원정보·시설별 비공개 원문을 싣지 않습니다.
+- 확정 변경은 [변경 이력](changelog/CHANGELOG.md)에 최신순으로 추가합니다. 새 WBS는 실제 개발 주차와 날짜를 확인합니다.

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 730" role="img" aria-labelledby="title desc">
+  <title id="title">급똥 운영 아키텍처 v5</title>
+  <desc id="desc">사용자 웹은 Next.js와 Cloudflare Workers, 관리자 진입은 Access로 보호합니다. Tunnel과 Nginx 뒤 API·관리자·배치가 MySQL·Redis와 연결됩니다. 공개 웹 캐시와 국내 암호화 보호 기록은 분리합니다.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#F7FBF8"/><stop offset="1" stop-color="#EEF7F1"/></linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10" fill="#76A48A"/></marker>
+    <style>
+      text{font-family:Pretendard,"Noto Sans KR","Malgun Gothic",sans-serif;fill:#173D29}
+      .title{font-size:27px;font-weight:800}.label{font-size:21px;font-weight:700}.body{font-size:16px;fill:#536F60}.eyebrow{font-size:13px;font-weight:700;letter-spacing:2px;fill:#337C52}
+      .card{fill:#FFF;stroke:#C8DFD1;stroke-width:1.5}.line{fill:none;stroke:#76A48A;stroke-width:2;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1000" height="730" rx="26" fill="url(#bg)"/>
+  <text x="36" y="40" class="eyebrow">GEUPDDONG · SYSTEM OVERVIEW</text>
+  <text x="36" y="78" class="title">탐색은 빠르게, 변경은 근거와 함께</text>
+  <text x="963" y="40" text-anchor="end" class="body">2026.09 · v5</text>
+  <rect x="32" y="103" width="566" height="170" rx="18" class="card"/>
+  <text x="56" y="135" class="eyebrow">PUBLIC WEB</text>
+  <text x="56" y="167" class="label">Next.js · OpenNext · Cloudflare Workers</text>
+  <text x="56" y="198" class="body">지도 · 상세 · 로그인 · 제보 · 현장 리뷰</text>
+  <rect x="52" y="215" width="526" height="38" rx="10" fill="#EEF7F1"/>
+  <text x="68" y="240" class="body">R2 공개 데이터 / 배포 캐시 · D1 tags · DO queue</text>
+  <rect x="614" y="103" width="354" height="170" rx="18" class="card"/>
+  <text x="638" y="135" class="eyebrow">ADMIN ACCESS</text>
+  <text x="638" y="168" class="label">Cloudflare Access</text>
+  <text x="638" y="199" class="body">운영자 진입 통제</text>
+  <text x="638" y="240" class="body">앱의 ADMIN 권한도 별도 확인</text>
+  <path d="M310 273V301" class="line"/><path d="M790 273V301" class="line"/>
+  <rect x="32" y="307" width="936" height="44" rx="12" fill="#17683A"/>
+  <text x="500" y="335" text-anchor="middle" style="font-size:18px;font-weight:700;fill:white">Cloudflare Tunnel → Nginx · 원본 서비스 진입</text>
+  <path d="M185 351V377" class="line"/><path d="M500 351V377" class="line"/>
+  <rect x="32" y="383" width="302" height="128" rx="16" class="card"/>
+  <text x="53" y="418" class="label">Public · User API</text>
+  <text x="53" y="449" class="body">시설 · 리뷰 · 인증 · 자체 분석</text>
+  <text x="53" y="480" class="body">권한 · 위치 · 기한 · 동시성 검증</text>
+  <rect x="349" y="383" width="302" height="128" rx="16" class="card"/>
+  <text x="370" y="418" class="label">Admin Workspace</text>
+  <text x="370" y="449" class="body">제보 · 변경 검토 · 중복 품질</text>
+  <text x="370" y="480" class="body">비교 · 결정 · 이력 · 운영 지표</text>
+  <rect x="666" y="383" width="302" height="128" rx="16" fill="#FFF8F0" stroke="#EAC79E"/>
+  <text x="687" y="418" class="label">Scheduled Batch</text>
+  <text x="687" y="449" class="body">공공데이터 → 증분 동기화</text>
+  <text x="687" y="480" class="body">확정 값 보호 · 변경 후보 보관</text>
+  <path d="M185 511V529H815V511M500 511V529" fill="none" stroke="#76A48A" stroke-width="2"/>
+  <path d="M500 529V543" class="line"/>
+  <rect x="32" y="549" width="936" height="98" rx="16" class="card"/>
+  <path d="M349 567V630M666 567V630" stroke="#DCE9E0"/>
+  <text x="55" y="584" class="label">MySQL</text><text x="55" y="616" class="body">시설 · 참여 · 이력 · 분석 집계</text>
+  <text x="373" y="584" class="label">Redis</text><text x="373" y="616" class="body">Refresh 해시 · 만료형 세션</text>
+  <text x="690" y="584" class="label">국내 LOCAL 보호 기록</text><text x="690" y="616" class="body">계정 파기 · 리뷰 연결 해제</text>
+  <text x="36" y="682" class="body">변경 전파: DB revision outbox → 서명 검증 → 데이터·페이지·사이트맵 갱신</text>
+  <text x="36" y="710" class="body">운영: Docker · GitHub Actions · CodeQL · 백업/복원 검증 · 실패 알림</text>
+</svg>
