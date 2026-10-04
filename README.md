@@ -13,6 +13,7 @@
 | 어떤 문제를 어떻게 해결했나요? | [프로젝트 포트폴리오](https://github.com/toilet-project) · [중복 시설·변경 검토](database/duplicate-facility-management.md) |
 | 데이터와 API의 기준은 무엇인가요? | [현재 스키마 안내](database/current-schema.md) · [리뷰 API·정책](api/location-reviews.md) · [기본 API](api/toilet-api.md) |
 | 어떻게 배포하고 점검하나요? | [배포·운영 가이드](operations/deployment.md) · [장애 대응](operations/reliability-runbook.md) |
+| 어떤 코드를 정리하고 최적화할까요? | [2026-10-04 코드 정리·최적화 검토](operations/code-cleanup-optimization-review-2026-10-04.md) |
 
 ## 현재 운영 · 2026-09-17
 
